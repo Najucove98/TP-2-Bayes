@@ -1,0 +1,185 @@
+---
+title: ""
+author: ""
+date: ""
+output:
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+    toc: false
+    number_sections: false
+    keep_tex: true
+header-includes:
+  - \renewcommand{\figurename}{Figura}
+  - \renewcommand{\tablename}{Tabla}
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
+  - \usepackage{titling}
+  - \usepackage{lipsum}
+  - \usepackage{fancyhdr}
+  - \usepackage{etoolbox}
+  - \usepackage{setspace}
+  - \usepackage{titlesec}
+  - \usepackage{emptypage}
+  - \pagestyle{fancy}
+  - \usepackage{placeins}
+  - \fancyhf{}
+  - \patchcmd{\maketitle}{\@maketitle}{\centering\vspace*{6cm}\@maketitle}{}{}
+  - \thispagestyle{empty}
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+```{=tex}
+\begin{titlepage}
+\centering
+\vspace*{4cm} % espacio superior
+
+{\Huge \textbf{Trabajo práctico 2 Estadística Bayesiana}}\\[2cm]
+
+{\Large Agustina Roura}\\[0.5cm]
+{\Large Cristian Nahuel Coveñas}\\[0.5cm]
+{\Large Juan Sebastian Reines}\\[2cm]
+
+{\large Fecha: Mayo 2025}
+
+\vfill
+
+\end{titlepage}
+```
+\newpage
+
+## Introducción
+
+El ozono $(O_3)$ es un gas compuesto por tres átomos de oxígeno, presente tanto en la atmósfera como en la superficie terrestre. Su presencia en la estratósfera (entre los 15 y 30 km de altitud) cumple una función vital al absorber la radiación ultravioleta del sol, permitiendo así el desarrollo de la vida en la Tierra.
+
+Sin embargo, la acumulación de ozono a nivel del suelo representa un problema para la vida humana como para el medio ambiente. Este gas actúa como un contaminante que puede afectar negativamente la función pulmonar, desencadenar episodios de asma, causar irritación en ojos y vías respiratorias, y dañar ecosistemas vegetales.
+
+Ante esta problemática, el investigador Brian Tarkington, perteneciente a la Universidad de California en Davis, llevó a cabo un estudio experimental para evaluar los efectos del ozono en organismos vivos. En particular, se propuso analizar el impacto del ozono en el crecimiento de ratas.
+
+Para ello, se seleccionaron 46 ratas de edad similar, las cuales fueron pesadas inicialmente y divididas aleatoriamente en dos grupos equivalentes. Un grupo fue expuesto a un ambiente rico en ozono, mientras que el otro se mantuvo en un ambiente libre de este gas. Luego de un período de exposición de siete días, se volvieron a pesar los individuos y se registró la diferencia de peso entre ambos grupos.
+
+## Modelización Estadística
+Para dar respuesta a la pregunta planteada por Tarkington respecto al efecto del ozono en el crecimiento de ratas, recurrimos a modelos bayesianos, se consideraron dos modelos probabilísticos similares pero con diferencias sutiles en su estructura. Esto nos permite no solo evaluar el efecto del ozono sobre el crecimiento de las ratas, sino también explorar cómo distintos supuestos sobre la distribución de los datos pueden influir en los resultados inferenciales.
+
+### Modelo Normal
+El primer enfoque se basa en el tradicional modelo normal, ampliamente utilizado en el análisis estadístico. En este modelo, se asume que el cambio de peso en las ratas sigue una distribución normal, con medias y varianzas específicas para cada grupo (grupo expuesto al ozono y grupo control).
+
+$$Y_{O,i} \sim Normal(\mu_O, \sigma_O^2) \quad i = 1,...,N_O$$
+$$Y_{C,j} \sim Normal(\mu_C, \sigma_C^2) \quad j = 1,...,N_C$$
+$$\mu_O, \mu_C \sim Normal(0, 5^2)$$
+$$\sigma_O^2, \sigma_C^2 \sim Gamma(\alpha = 6, \beta = 2)$$
+
+donde $Y_{O,i}$ representa el cambio de peso en la i-ésima rata del grupo expuesto al ozono, y $Y_{C,j}$ representa el cambio correspondiente en la j-ésima rata del grupo control.
+
+### Modelo T de Student
+El segundo modelo la distribución de los datos se modela mediante una distribución T de Student con 3 grados de libertad. Esta alternativa resulta especialmente útil cuando se desea robustez frente a posibles valores atípicos o colas pesadas en la distribución de los datos.
+$$Y_{O,i} \sim Normal(\mu_O, \sigma_O^2) \quad i = 1,...,N_O$$
+$$Y_{C,j} \sim Normal(\mu_C, \sigma_C^2) \quad j = 1,...,N_C$$
+$$\mu_O, \mu_C \sim Normal(0, 5^2)$$
+$$\sigma_O^2, \sigma_C^2 \sim Gamma(\alpha = 6, \beta = 2)$$
+
+
+\newpage
+
+## Objetivos
+
+1.[**Análisis de estudio considerando la mentira al responder las preguntas**](#Objetivo-1)
+
+2.[**Análisis de los apostadores utilizando el método de Warner**](#Objetivo-2)
+
+3.[**Análisis de los apostadores utilizando el método de Greenberg**](#Objetivo-3)
+
+4.[**Conclusiones finales sobre los métodos de respuesta aleatorizada**](#Objetivo-4)
+
+\newpage
+
+# Carga de datos
+
+```{r carga-datos, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(readr)
+# Cargamos el conjunto de datos
+datos <- read_csv("tarkington.csv")
+data("mtcars")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Gráfico de ejemplo
+
+A continuación, se muestra un gráfico generado con R:
+
+```{r fig1, echo=FALSE, fig.cap="Función de dispersión"}
+
+plot(mtcars$wt, mtcars$mpg,
+     main = "Peso vs Consumo de combustible",
+     xlab = "Peso (1000 lbs)",
+     ylab = "Millas por galón",
+     pch = 19, col = "darkblue")
+
+```
+
+Como puede observarse en la Figura @ref(fig:fig1), las observaciones presentan una relación inversa entre el peso del vehículo y el rendimiento de combustible.
+
+
+```{r fig2, echo=FALSE, fig.cap="Histograma"}
+
+hist(mtcars$mpg, main = "Histograma de MPG", xlab = "Millas por galón", col = "skyblue", border = "white")
+```
+
+En la Figura @ref(fig:fig2) se observa que la mayoría de los vehículos tiene un consumo entre 15 y 25 millas por galón.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
