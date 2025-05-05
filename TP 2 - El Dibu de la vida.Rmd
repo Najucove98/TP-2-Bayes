@@ -73,8 +73,8 @@ donde $Y_{O,i}$ representa el cambio de peso en la i-ésima rata del grupo expue
 
 ### Modelo T de Student
 El segundo modelo la distribución de los datos se modela mediante una distribución T de Student con 3 grados de libertad. Esta alternativa resulta especialmente útil cuando se desea robustez frente a posibles valores atípicos o colas pesadas en la distribución de los datos.
-$$Y_{O,i} \sim Normal(\mu_O, \sigma_O^2) \quad i = 1,...,N_O$$
-$$Y_{C,j} \sim Normal(\mu_C, \sigma_C^2) \quad j = 1,...,N_C$$
+$$Y_{O,i} \sim Studen-T(\mu_O, \sigma_O^2) \quad i = 1,...,N_O$$
+$$Y_{C,j} \sim Studen-T(\mu_C, \sigma_C^2) \quad j = 1,...,N_C$$
 $$\mu_O, \mu_C \sim Normal(0, 5^2)$$
 $$\sigma_O^2, \sigma_C^2 \sim Gamma(\alpha = 6, \beta = 2)$$
 
@@ -83,15 +83,411 @@ $$\sigma_O^2, \sigma_C^2 \sim Gamma(\alpha = 6, \beta = 2)$$
 
 ## Objetivos
 
-1.[**Análisis de estudio considerando la mentira al responder las preguntas**](#Objetivo-1)
+1.[**En el simulador: ensayos con la distribución Gamma**](#Objetivo-1)
 
-2.[**Análisis de los apostadores utilizando el método de Warner**](#Objetivo-2)
+2.[**Free practice: múltiples dimensiones**](#Objetivo-2)
 
-3.[**Análisis de los apostadores utilizando el método de Greenberg**](#Objetivo-3)
-
-4.[**Conclusiones finales sobre los métodos de respuesta aleatorizada**](#Objetivo-4)
+3.[**El Gran Prix: ¿qué le decimos a Brian?**](#Objetivo-3)
 
 \newpage
+
+### En el simulador: ensayos con la distribución Gamma {#Objetivo-1}
+
+El objetivo de esta sección es familiarizarnos con el uso de transformaciones para obtener muestras de distribuciones con soporte acotado. Inicialmente, utilizaremos la función metropolis_hastings() desarrollada en la práctica de la materia, que opera en escala original. Luego, utilizaremos la función metropolis_hastings_log() incluida más arriba, que trabaja en escala logarítmica.
+
+Sea $X \sim Gamma(\alpha = 3 \text{, } \beta = 2)$
+
+```{r , echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+
+# Funciones estandar para graficar
+graficar_distribucion <- function(x_muestras, x_grid, p_grid) {
+  # Graficar histograma de las muestras con la curva de densidad teórica superpuesta.
+  plt <- ggplot() +
+    geom_histogram(
+      aes(x = x, y = after_stat(density)),
+      fill = "grey60",
+      bins = 50,
+      data = data.frame(x = x_muestras)
+    ) +
+    geom_line(
+      aes(x = x, y = y),
+      color = "#3b78b0",
+      linewidth = 1,
+      data = data.frame(x = x_grid, y = p_grid)
+    ) +
+    labs(y = NULL) +
+    theme_bw() +
+    theme(
+      panel.grid.major = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank(),
+      legend.position = "none"
+    )
+  return(plt)
+}
+
+graficar_traza <- plot_trace <- function(x_muestras) {
+  # Generar un _traceplot_ para una cadena de Markov.
+  plt <- data.frame(x = seq_along(x_muestras), y = x_muestras) |>
+    ggplot() +
+    geom_line(aes(x = x, y = y), color = "grey30") +
+    labs(x = "Paso", y = "x") +
+    theme_bw()
+  theme(
+    panel.grid.major = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.text.y = element_blank(),
+    legend.position = "none"
+  )
+  return(plt)
+}
+```
+
+- Obtenga y grafique la función de densidad de $Y = log(X)$
+
+
+
+
+```{r}
+
+#////////////////////////////////////////////////////////////////////////////////////////////////
+#   LA IDEA ES METER TODO EL DESARROLLO QUE HICIMOS EN CLASE EN UNA ESPECIA DE INFORME 
+#////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+# g(u) = log(u)
+# g: (0, inf) -> R
+# 
+# Inversa:
+# g^(-1) (u) = e^u
+# g-1 : R -> (0, inf)
+
+
+
+# Py(y) = Px(g^-1 (y)) det(d/dy g-1(y))
+
+# Creamos una funcion:
+py <- function(y){
+  dgamma(exp(y), shape = 3, rate = 2) * exp(y) # Correccion
+}
+
+
+# Cremos una grilla de valores de y:
+# X está en los reales positivos
+# Y está en los reales
+
+grid_y <- seq(-5, 5, length.out = 500)
+# Probamos con -5 y 5 por los valores de los parámetros de la gamma
+# depende donde se concentran los valores
+# E y V de transformacion de la variable
+
+grid_p_y <- py(grid_y)
+
+ggplot(data.frame(x = grid_y, y = grid_p_y))  +
+  geom_line ( aes(x = x, y =y), linewidth = 1)
+# No es una distribucion conocida
+
+# "ignoramos que existe rgamma"
+grid_x <- seq(0, 6, length.out = 500)
+grid_px <- dgamma(grid_x, 3, 2)
+ggplot(data.frame(x = grid_x, y = grid_px)) +
+  geom_line(aes(x =x, y=y), linewidth = 1)
+
+
+# Sacamos muestras:
+
+# Hacemos un nuevo grid_py:
+grid_y <- seq(-5, 5, length.out = 10000)
+
+muestras <- metropolis_hastings_normal(
+  n = 10000,
+  x = 0,
+  p = p_y,
+  sigma = 0.2
+)
+
+# Graficando:
+graficar_distribucion(muestra, 
+                      # En el eje x van los grid_py(osea los valores 
+                      # "simulados" de y)
+                      x_grid = grid_y, 
+                      # En el eje y van los valores de P(y) 
+                      p_grid = grid_p_y)
+
+graficar_traza(muestra)
+
+# Copiando lo del profe:
+muestras <- metropolis_hastings_normal(
+  n = 10000,
+  x = 0,
+  p = py ,
+  sigma = 0.2 # Estaría bueno agregar qué pasa con otros valores de sigma
+)
+
+# PONER:
+# EL QUE ESTA EN EL TP 0.2, NO ES EL MEJOR QUE SE PODRÍA USAR
+
+graficar_distribucion(muestras, grid_y, grid_p_y)
+# no se nota mucho porque son muchas muestras, pero presenta autocorrelacion
+# Con un sigma más grande, puede verse que hay menor autocorrelacion
+# (sigma = 0.8)
+
+# Transformamos las muestras de Y a muestras de X:
+muestras_x <- exp(muestras)
+
+# "Sabemos el resultado" entonces comparamos lo que simulamos"
+# con lo que tiene que dar
+graficar_distribucion(muestras_x, grid_x, grid_px)
+
+# En el ejercicio 2, no conocemos la azul
+# Ahí calculamos la empírica con la teórica
+
+graficar_traza(muestras_x)
+
+# Las muestras son las mismas, pero en escala logaritmica
+# falta lo del tamaño efectivo de muestras
+
+
+
+
+# Completamos el codigo:
+metropolis_hastings_log <- function(logp, x, n, sigma = NULL) {
+  # Algortimo de Metropolis Hastings en escala logarítmica
+  #
+  # Parámetros
+  #  ------------------------------------------------------------------------
+  #  logp      Función de densidad objetivo, normalizada o sin normalizar, |
+  #            en escala logarítmica.                                      |
+  #  x         Posición inicial del algoritmo.                             |
+  #  n         Cantidad de muestras a obtener.                             |
+  #  sigma     Matriz de varianzas y covarianzas para la distribución de   |
+  #            propuesta. Por defecto, es NULL y usa la matriz identidad.  |
+  #  ------------------------------------------------------------------------
+  #
+  # Salida
+  #  ------------------------------------------------------------------------
+  #  muestras | Matriz con las muestras obtenidas.                          |
+  #  ------------------------------------------------------------------------
+  
+  # Obtener dimensionalidad de la distribución objetivo a partir del punto inicial
+  p <- length(x)
+  
+  # Inicializar matriz donde se guardan las muestras
+  muestras <- matrix(NA, nrow = n, ncol = p)
+  
+  # Usar matriz diagonal unitaria para la distribución de propuesta cuando no se especifica
+  if (is.null(sigma)) {
+    sigma <- diag(p)
+  }
+  
+  # Almacenar el punto inicial en la matriz de muestras
+  muestras[1, ] <- x
+  
+  for (i in 1:(n - 1)) {
+    # Obtener el valor de la muestra actual
+    muestra_actual <- muestras[i, ]
+    
+    # Proponer un nuevo valor
+    muestra_propuesta <- mvtnorm::rmvnorm(1, mean = muestra_actual, sigma = sigma)
+    
+    # Evaluar la log densidad en el valor actual y en el propuesto
+    logp_propuesta <- logp(muestra_propuesta)
+    logp_actual <- logp(muestra_actual)
+    
+    # Log densidad al pasar de muestra_propuesta a muestra_actual y viceversa
+    logq_actual <- mvtnorm::dmvnorm(
+      muestra_actual, mean = muestra_propuesta, sigma = sigma, log = TRUE
+    )
+    logq_propuesta <- mvtnorm::dmvnorm(
+      muestra_propuesta, mean = muestra_actual, sigma = sigma, log = TRUE
+    )
+    
+    # Calcular log probabilidad de aceptación COMPLETAMOS
+    # Es mas estable con sumas y restas
+    log_alpha <- (
+      (logp_propuesta - logp_actual) + (logq_actual - logq_propuesta)
+    )
+    
+    # Simular aceptación o rechazo
+    # Opcion 1: comparacion en escala logarítmica
+    log_u <- log(runif(1))
+    aceptar <- log_u < log_alpha
+    
+    # Opcion 2: comparacion en escala original
+    # u <- runif(1)
+    # aceptar <- u < exp(log_alpha)
+    
+    # Determinar siguiente paso en base al criterio de selección
+    if (aceptar) {
+      muestras[i + 1, ] <- muestra_propuesta
+    } else {
+      muestras[i + 1, ] <- muestra_actual
+    }
+  }
+  # Convertir 'muestras' a vector si se trata de una distrbución univariada
+  if (p == 1) {
+    muestras <- as.vector(muestras)
+  }
+  
+  return(muestras)
+}
+
+# Se puede poner log = T, en los dnorm, etc para que lo haga automaticamente
+# con escala logaritmica
+
+logp_y <- function(y){
+  # Equivalente a log(dgamma(x, shape = 3, rate = 2))
+  # Pero es más estable:
+  dgamma(exp(y), shape = 3, rate = 2, log = T) + y
+}
+
+
+muestralog <- metropolis_hastings_log(
+  logp = logp_y,
+  x = 0, 
+  n = 10000, 
+  # Como usamos la normal multivariada, no usamos desvios o variancias
+  # usamos la matriz de covariancias, pero en los elementos diagonales
+  # tiene las variancias, no los desvíos, por eso se eleva al cuadrado
+  sigma = as.matrix(0.2^2)
+)
+# Normal multivariada -> matriz de variancias y covariancias
+
+graficar_distribucion(muestralog, grid_y, grid_p_y)
+graficar_traza(muestralog)
+
+# Muestras de X
+muestras_x <- exp(muestralog)
+graficar_distribucion(muestras_x, grid_x, grid_px)
+graficar_traza(muestras_x)
+
+# Muestreamos usando transformacion de v.a. ES POR ESTO que volvemos a X
+# con la exponencial
+# usamos densidad en escala logarítmica(solo por eficiencia computacional)
+
+```
+
+
+
+
+
+```{r}
+## ESTO ES PARTE DE LA RESOLUCION DEL ITEM 2 
+# Traemos las funciones que vamos a utilizar para el método de Metropolis-Hastings
+
+metropolis_hastings_normal <- function(n, x, p, sigma, verbose = FALSE) {
+  # Algortimo de Metropolis Hastings en una dimensión.
+  # La distribución de propuesta es normal.
+  # Parámetros
+  #  ------------------------------------------------------------------------
+  #  n         -Cantidad de muestras a obtener.                             
+  #  x         -Posición inicial del algoritmo.                             
+  #  p         -Función de densidad objetivo, normalizada o sin normalizar. 
+  #  sigma     -Desvío estándar de la distribución de propuesta normal.     
+  #  verbose   -Indica si se muestran mensajes con información del          
+  #             algoritmo en cada paso.                                     
+  #  ------------------------------------------------------------------------
+  #  Salida
+  #  ------------------------------------------------------------------------
+  #  muestras | Vector con las muestras obtenidas.                          
+  #  ------------------------------------------------------------------------
+  
+  muestras <- numeric(n)
+  muestras[1] <- x
+  
+  # Iterar desde i = 1 hasta i = n - 1
+  for (i in seq_len(n - 1)) {
+    # Paso 1: Proponer un nuevo valor
+    x_actual <- muestras[i]
+    x_propuesto <- rnorm(1, mean = x_actual, sd = sigma)
+    
+    # Paso 2: Calcular probabilidad de aceptación
+    p_actual <- p(x_actual)
+    p_propuesto <- p(x_propuesto)
+    
+    # Corrección en base a la densidad de la distribución de propuesta
+    q_propuesto <- dnorm(x_propuesto, mean = x_actual, sd = sigma)  # q(x_propuesto | x_actual)
+    q_actual <- dnorm(x_actual, mean = x_propuesto, sd = sigma)     # q(x_actual | x_propuesto)
+    
+    alpha <- min(1, (p_propuesto / p_actual) * (q_actual / q_propuesto))
+    
+    # Paso 3: Dedicir si se acepta el valor propuesto
+    u <- runif(1)
+    aceptar <- u < alpha
+    
+    # Guardar posición
+    if (aceptar) {
+      muestras[i + 1] <- x_propuesto
+    } else {
+      muestras[i + 1] <- x_actual
+    }
+    
+    # Si 'verbose' es TRUE, mostrar valores de variables relevantes
+    if (verbose) {
+      cat("-----------------------\n")
+      cat("x_actual: ", x_actual, "x_propuesto", x_propuesto, "\n")
+      cat("p_actual: ", p_actual, "p_propuesto", p_propuesto, "\n")
+      cat("q_propuesto: ", q_propuesto, "q_actual", q_actual, "\n")
+      cat("alpha:", alpha, "u:", u, "aceptar:", aceptar, "\n")
+    }
+  }
+  
+  return(muestras)
+}
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Free practice: múltiples dimensiones {#Objetivo-2}
+
+### El Gran Prix: ¿qué le decimos a Brian? {#Objetivo-3}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Carga de datos
 
