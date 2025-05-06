@@ -100,6 +100,71 @@ Sea $X \sim Gamma(\alpha = 3 \text{, } \beta = 2)$
 ```{r , echo=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
 
+
+metropolis_hastings_normal <- function(n, x, p, sigma, verbose = FALSE) {
+  # Algortimo de Metropolis Hastings en una dimensión.
+  # La distribución de propuesta es normal.
+  #
+  # Parámetros
+  #  ------------------------------------------------------------------------
+  # | n        | Cantidad de muestras a obtener.                             |
+  # | x        | Posición inicial del algoritmo.                             |
+  # | p        | Función de densidad objetivo, normalizada o sin normalizar. |
+  # | sigma    | Desvío estándar de la distribución de propuesta normal.     |
+  # | verbose  | Indica si se muestran mensajes con información del          |
+  # |            algoritmo en cada paso.                                     |
+  #  ------------------------------------------------------------------------
+  #
+  # Salida
+  #  ------------------------------------------------------------------------
+  # | muestras | Vector con las muestras obtenidas.                          |
+  #  ------------------------------------------------------------------------
+  
+  muestras <- numeric(n)
+  muestras[1] <- x
+  
+  # Iterar desde i = 1 hasta i = n - 1
+  for (i in seq_len(n - 1)) {
+    # Paso 1: Proponer un nuevo valor
+    x_actual <- muestras[i]
+    x_propuesto <- rnorm(1, mean = x_actual, sd = sigma)
+    
+    # Paso 2: Calcular probabilidad de aceptación
+    p_actual <- p(x_actual)
+    p_propuesto <- p(x_propuesto)
+    
+    # Corrección en base a la densidad de la distribución de propuesta
+    q_propuesto <- dnorm(x_propuesto, mean = x_actual, sd = sigma)  # q(x_propuesto | x_actual)
+    q_actual <- dnorm(x_actual, mean = x_propuesto, sd = sigma)     # q(x_actual | x_propuesto)
+    
+    alpha <- min(1, (p_propuesto / p_actual) * (q_actual / q_propuesto))
+    
+    # Paso 3: Dedicir si se acepta el valor propuesto
+    u <- runif(1)
+    aceptar <- u < alpha
+    
+    # Guardar posición
+    if (aceptar) {
+      muestras[i + 1] <- x_propuesto
+    } else {
+      muestras[i + 1] <- x_actual
+    }
+    
+    # Si 'verbose' es TRUE, mostrar valores de variables relevantes
+    if (verbose) {
+      cat("-----------------------\n")
+      cat("x_actual: ", x_actual, "x_propuesto", x_propuesto, "\n")
+      cat("p_actual: ", p_actual, "p_propuesto", p_propuesto, "\n")
+      cat("q_propuesto: ", q_propuesto, "q_actual", q_actual, "\n")
+      cat("alpha:", alpha, "u:", u, "aceptar:", aceptar, "\n")
+    }
+  }
+  
+  return(muestras)
+}
+
+
+
 # Funciones estandar para graficar
 graficar_distribucion <- function(x_muestras, x_grid, p_grid) {
   # Graficar histograma de las muestras con la curva de densidad teórica superpuesta.
