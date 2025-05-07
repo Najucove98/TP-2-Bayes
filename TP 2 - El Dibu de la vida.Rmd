@@ -99,6 +99,8 @@ Sea $X \sim Gamma(\alpha = 3 \text{, } \beta = 2)$
 
 ```{r , echo=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
+library(purrr)
+
 
 
 metropolis_hastings_normal <- function(n, x, p, sigma, verbose = FALSE) {
@@ -534,6 +536,105 @@ metropolis_hastings_normal <- function(n, x, p, sigma, verbose = FALSE) {
 
 
 ### Free practice: múltiples dimensiones {#Objetivo-2}
+
+paso 1) transformar los parametros tal que su dominio sea R^p
+paso 2) tener posterior no normalizado de $\theta^* $ donde $\theta^* = {\mu, \sigma^*} $ 
+         $ \sigma^* = log(\sigma)$
+paso 3) obtener el posterior no normalizado de theta* en escala logaritmica
+paso 4) obtener muestras de theta*
+paso 5) convertir las muestras de theta* en muestras de theta
+
+$$
+(a)\\
+P(\mu, \sigma^* \mid y) ~ P_y(y \mid \mu, \sigma^*)P_\mu(\mu)P_\sigma^*(\sigma^*)
+
+\\
+(b)
+\\
+P_\sigma^*(\sigma^*) = P_\sigma^*(g^1 (\sigma^*))\mid d/d\sigma^* (g^1 (\sigma^*)) \mid
+\\
+
+= P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*) 
+
+\\
+(a),(b)
+\\
+
+[\prod P_y(y_i \mid \mu,\exp(\sigma^*))]*P_\mu(\mu)*P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*)  
+$$
+
+
+```{r}
+## Segunda parte
+
+# paso 1) transformar los parametros tal que su dominio sea Rp
+# paso 2) tener posterior no normalizado de theta* donde theta* =(mu, sigma*)
+#         sigma* = log(sigma)
+# paso 3) obtener el posterior no normalizado de theta* en escala logaritmica
+# paso 3.5) implemetar el paso 3 en R
+# paso 4) obtener muestras de theta*
+# paso 5) convertir las muestras de theta* en muestras de theta
+
+
+log_posterior <- function(params, y_vector){
+  
+  #params tiene longitud 2
+  mu <- params[1]
+  sigma_estrella <- params[2]
+  
+  salida <- (
+    sum(dnorm(y_vector, mean = mu, sd = exp(sigma_estrella), log = TRUE))
+    + dnorm(mu, mean = 0, sd = 1, log =TRUE)
+    + dgamma(exp(sigma_estrella), shape = 2, rate = 2, log = TRUE)
+    + sigma_estrella
+  )
+  
+  return(salida)
+}
+
+# log-posterior no normalizado
+log_posterior(params = c(0, log(2)),
+              y_vector = rnorm(10, mean = 0, sd = log(2))
+              )
+
+y_datos <- readLines("https://raw.githubusercontent.com/ee-unr/estadistica-bayesiana/refs/heads/main/datos/precalentamiento-mh.txt")
+
+y_datos <- as.numeric(y_datos)
+
+logp <- partial(log_posterior, y = y_datos)
+
+
+# Dan el mismo resultado
+log_posterior(c(0, log(2)), y_datos)
+logp(c(0, log(2)))
+
+Sigma <- diag(2)*(0.05^2)
+
+# Obtener muestras
+muestras_theta_estrella <- metropolis_hastings_log(
+  logp = logp,
+  x = c(0.5, log(1.5)),
+  n = 1000,
+  sigma = Sigma
+)
+
+
+# traceplot de mu
+plot_trace(muestras_theta_estrella[,1])
+
+# traceplot de sigma estrella
+plot_trace(muestras_theta_estrella[,2])
+
+# Histograma a partir de las muestras de mu
+graficar_distribucion(muestras_theta_estrella[,1], x_grid = 1, p_grid = 1)
+
+# es un histograma que representa la distribucion aposteriori marginal de mu
+
+
+```
+
+Son muestras obtenidas a partir d ela distribucion log, cuando aun no habian convergido
+
 
 ### El Gran Prix: ¿qué le decimos a Brian? {#Objetivo-3}
 
