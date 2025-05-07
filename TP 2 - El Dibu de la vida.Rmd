@@ -268,19 +268,19 @@ grid_y <- seq(-5, 5, length.out = 10000)
 muestras <- metropolis_hastings_normal(
   n = 10000,
   x = 0,
-  p = p_y,
+  p = py,
   sigma = 0.2
 )
 
 # Graficando:
-graficar_distribucion(muestra, 
+graficar_distribucion(muestras, 
                       # En el eje x van los grid_py(osea los valores 
                       # "simulados" de y)
                       x_grid = grid_y, 
                       # En el eje y van los valores de P(y) 
                       p_grid = grid_p_y)
 
-graficar_traza(muestra)
+graficar_traza(muestras)
 
 # Copiando lo del profe:
 muestras <- metropolis_hastings_normal(
