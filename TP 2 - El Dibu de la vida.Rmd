@@ -23,7 +23,7 @@ header-includes:
   - \pagestyle{fancy}
   - \usepackage{placeins}
   - \fancyhf{}
-  - \patchcmd{\maketitle}{\@maketitle}{\centering\vspace*{6cm}\@maketitle}{}{}
+  - \patchcmd{\maketitle}{\@maketitle}{\centering\vspace*{4cm}\@maketitle}{}{}
   - \thispagestyle{empty}
 editor_options: 
   markdown: 
@@ -50,13 +50,21 @@ editor_options:
 
 # Introducción
 
-El ozono $(O_3)$ es un gas compuesto por tres átomos de oxígeno, presente tanto en la atmósfera como en la superficie terrestre. Su presencia en la estratósfera (entre los 15 y 30 km de altitud) cumple una función vital al absorber la radiación ultravioleta del sol, permitiendo así el desarrollo de la vida en la Tierra.
+El ozono $(O_3)$, una molécula de tres átomos de oxígeno, exhibe una fascinante dualidad en su comportamiento y efectos. En las capas superiores de la atmósfera, conforma la vital capa de ozono, un escudo protector que filtra la radiación ultravioleta del sol, permitiendo la vida tal como la conocemos. Sin embargo, a nivel de la superficie terrestre, este mismo gas se transforma en un contaminante atmosférico de considerable impacto negativo, afectando la salud humana a través de la irritación del sistema respiratorio y ocular, el desencadenamiento de episodios de asma y el deterioro de la función pulmonar. Además, su presencia en el aire urbano contribuye al smog y puede causar daños significativos en la vegetación.
 
-Sin embargo, la acumulación de ozono a nivel del suelo representa un problema para la vida humana como para el medio ambiente. Este gas actúa como un contaminante que puede afectar negativamente la función pulmonar, desencadenar episodios de asma, causar irritación en ojos y vías respiratorias, y dañar ecosistemas vegetales.
+Ante la creciente preocupación por los efectos del ozono a nivel del suelo, Brian Tarkington, investigador del California Primate Research Center, llevó a cabo un estudio con el objetivo de cuantificar su impacto en el desarrollo de organismos vivos. Específicamente, se propuso investigar si la exposición a un ambiente enriquecido con ozono afectaba el crecimiento de ratas jóvenes. Para ello, diseñó un experimento controlado donde un grupo de 46 ratas de la misma edad fueron divididas aleatoriamente en dos subgrupos iguales. Uno de estos grupos fue expuesto a un ambiente con alta concentración de ozono, mientras que el otro se mantuvo en un ambiente libre de este gas. Tras un período de siete días, se registró la diferencia en el peso de cada animal, generando un conjunto de datos que permite analizar comparativamente el efecto de la exposición al ozono.
 
-Ante esta problemática, el investigador Brian Tarkington, perteneciente a la Universidad de California en Davis, llevó a cabo un estudio experimental para evaluar los efectos del ozono en organismos vivos. En particular, se propuso analizar el impacto del ozono en el crecimiento de ratas.
+El presente informe se centra en el análisis de estos datos utilizando la metodología de la Estadística Bayesiana. En particular, se explorarán dos modelos probabilísticos con sutiles diferencias en su formulación. El primer modelo, basado en la distribución normal, con medias $(\mu_O,\ \mu_C)$ y varianzas $(\sigma_O^2,\ \sigma_C^2)$ específicas, representa un enfoque clásico y ampliamente utilizado en el análisis estadístico. El segundo modelo, en contraste, emplea la distribución T de Student con grados de libertad $(v = 3)$ para capturar posibles colas más pesadas en la distribución de los datos. La comparación de los resultados obtenidos bajo ambos modelos permitirá no solo responder a la pregunta de investigación planteada por Tarkington, sino también profundizar en la sensibilidad de las conclusiones a las asunciones distribucionales realizadas.
 
-Para ello, se seleccionaron 46 ratas de edad similar, las cuales fueron pesadas inicialmente y divididas aleatoriamente en dos grupos equivalentes. Un grupo fue expuesto a un ambiente rico en ozono, mientras que el otro se mantuvo en un ambiente libre de este gas. Luego de un período de exposición de siete días, se volvieron a pesar los individuos y se registró la diferencia de peso entre ambos grupos.
+Más allá de la comparación de estos modelos y la respuesta a la pregunta de investigación sobre el efecto del ozono, el objetivo principal del estudio es profundizar el uso del algoritmo de Metropolis-Hastings (MH) como un método de la inferencia bayesiana. Este algoritmo se vuelve esencial cuando la distribución de probabilidad a posteriori de los parámetros de interés no tiene una forma analítica conocida, lo que dificulta la obtención directa de medidas de resúmenes o la realización de inferencias.
+En esencia, el algoritmo de Metropolis-Hastings funciona como un proceso iterativo que genera una secuencia de valores (una cadena de Markov) que, bajo ciertas condiciones, converge a la distribución a posteriori deseada. Partiendo de un valor inicial para los parámetros, el algoritmo sugiere un nuevo valor $propuesto$ basado en una distribución conocida. Este nuevo valor es luego aceptado o rechazado según una probabilidad $\alpha$ que depende de la razón entre la verosimilitud de los datos bajo el nuevo valor de los parámetros y la verosimilitud bajo el valor actual, multiplicada por la razón de las probabilidades a priori de los dos valores. 
+
+$\alpha = \min \left\{ 1, \frac{p(y')q(y^{(t)} | y')}{p(y^{(t)})q(y' | y^{(t)})} \right\}$
+
+Si el valor $propuesto$ tiene una mayor probabilidad a posteriori (o una probabilidad no mucho menor), es más probable que sea aceptado. Si es rechazado, el valor actual se mantiene para la siguiente iteración. Tras un número suficiente de iteraciones, las muestras generadas por el algoritmo se aproxima a la distribución del $posterior$ objetivo y asi calcular diversas cantidades de interés, como medias, medianas, intervalos de credibilidad, etc. La clave del algoritmo radica en la elección adecuada de la distribución de propuesta para asegurar una exploración eficiente del espacio de parámetros y una rápida convergencia a la distribución objetivo.
+
+
+\newpage
 
 # Modelización Estadística
 Para dar respuesta a la pregunta planteada por Tarkington respecto al efecto del ozono en el crecimiento de ratas, recurrimos a modelos bayesianos, se consideraron dos modelos probabilísticos similares pero con diferencias sutiles en su estructura. Esto nos permite no solo evaluar el efecto del ozono sobre el crecimiento de las ratas, sino también explorar cómo distintos supuestos sobre la distribución de los datos pueden influir en los resultados inferenciales.
@@ -91,30 +99,10 @@ $$\sigma_O^2, \sigma_C^2 \sim Gamma(\alpha = 6, \beta = 2)$$
 
 \newpage
 
-# Un deep dive bien profundo en Metropolis-Hastings
-
-El algoritmo de Metropolis-Hastings permite generar muestras (pseudo-)aleatorias a partir de una distribución de probabilidad $P$ que no necesariamente pertence a una familia de distribuciones conocida. El único requisito es que se pueda evaluar la función de densidad (o de masa de probabilidad) $p^*(\theta)$ en cualquier valor de $\theta$, incluso cuando $p^*(\theta)$ sea impropia (es decir, incluso aunque sea desconocida la constante de normalización que hace que la integral en el soporte de la función sea igual a uno).
-
-### Algoritmo de Metropolis-Hastings
-
-Para generar una muestra de valores $\{y^{(1)}, y^{(2)},..., y^{(n)}\}$ a partir de una distribución de probrabilidad $P$ con función de densidad $p$.
-
-$1.\text{Seleccionar un punto inicial } y^{(1)}.$
-
-$2.\text{Para cada } t \in \{1,..., n\} \text{, repetir:}$
-
-$\text{i.Realizar propuesta}$
-
-SEGUIR CON ESTA IDEA?
-...
-...
-...
-...
-
-
 ```{r , echo=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(purrr)
+library(latex2exp)
 
 # Funciones estandar para graficar
 graficar_distribucion <- function(x_muestras, x_grid, p_grid) {
@@ -226,77 +214,91 @@ metropolis_hastings_normal <- function(n, x, p, sigma, verbose = FALSE) {
 
 # Metropolis-Hastings en espacios paramétricos acotados {#Objetivo-1}
 
-La distribución normal suele ser una elección conveniente a la hora de proponer saltos, pero presenta desventajas cuando el espacio paramétrico es acotado: inevitablemente, algunas propuestas caerán fuera del dominio y rechazaremos más que de costumbre.
+El algoritmo de Metropolis-Hastings, implementado en escala logarítmica, constituye una herramienta robusta para obtener muestras del $posterior$. Sin embargo, su aplicación directa a modelos complejos puede ser desafiante sin una sólida comprensión de sus fundamentos y técnicas asociadas.
+Como preparación para la aplicación del algoritmo de Metropolis-Hastings a los modelos bayesianos propuestos en este trabajo, se llevó a cabo una exploración inicial del algoritmo en escenarios más simples.
+Se comenzó con un escenario donde $X$ es la variable aleatoria de interés, cuya función de densidad corresponde a una distribución Gamma con parámetros $\alpha = 3$ y $\beta = 2$ ($X \sim Gamma(3,2)$).
 
-Para abordar este problema,consiste en aplicar una transformación de variables para trabajar en un espacio no acotado, permitiendo así seguir utilizando una distribución de propuesta normal. Esta estrategia requiere conocer la densidad objetivo en el nuevo espacio, lo que implica calcular el determinante del jacobiano de la transformación. A su favor, muchas de las transformaciones más utilizadas permiten un cálculo sencillo, y este proceso puede automatizarse con herramientas de diferenciación automática existentes.
+```{r f1,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Distribucion de densidad de X" }
+# Cremos una grilla de valores de x:
+# X está en los reales positivos
+grid_x <- seq(0, 6, length.out = 500)
 
-Sea $X \sim Gamma(\alpha = 3 \text{, } \beta = 2)$
+# Creamos la grilla de las p_x
+grid_px <- dgamma(grid_x, 3, 2)
 
-# En el simulador: ensayos con la distribución Gamma 
+# Graficamos la funcion de densidad de la X
+ggplot(data.frame(x = grid_x, y = grid_px), aes(x = x, y = y)) +
+  geom_area(fill = "#3b78b0", alpha = 0.5) +
+  geom_line(linewidth = 0.8, color = "#3b78b0") +
+  labs(y = TeX("$f_X(x)$")) + 
+  scale_x_continuous(expand = expansion(mult = c(0, 0.05))) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  theme_bw() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+  )
+```
+La Figura @ref(fig:f1) ilustra la forma de la distribución de densidad de la variable aleatoria $X$.
 
-El objetivo de esta sección es familiarizarnos con el uso de transformaciones para obtener muestras de distribuciones con soporte acotado.
+A continuación, se propone encontrar la función de densidad de una nueva variable aleatoria $Y=log(X)$. Para ello, recurrimos a la técnica de transformación de variables de la siguiente manera:
 
-Sea $X \sim Gamma(\alpha = 3 \text{, } \beta = 2)$
+$\text{Sea }Y = g(X) = log(x) \text{, donde la función } g:(0,\ +\infty) \rightarrow \mathbb{R}.$
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+$\text{Hallamos la función inversa: }g^{-1}(X) = e^{X} \text{, con dominio } g^{-1}: \mathbb{R} \rightarrow (0,\ +\infty).$
 
-- Obtenga y grafique la función de densidad de $Y = log(X)$
+Luego, la función de densidad de $Y$, $P_Y(y)$, se obtiene a partir de la función de densidad $X$, $P_X(x)$, utilizando la siguiente relación:
 
-$\text{Transformación de la variable aleatoria}$
+$$P_Y(y) = P_X(g^{-1}(y)) \left| \frac{d}{dy} g^{-1}(y) \right|$$
+$\text{Sustituyendo } g^{-1}(y) = e^{y}, \text{ obtenemos:}$
 
-$\text{Sea }Y = g(X) = log(x)$
-$\text{La función }g:(0,\ +\infty) \rightarrow \mathbb{R}$
-
-$\text{Hallamos la inversa: }$
-$\text{Se tiene }g^{-1}(X) = e^{X}$
-$\text{Donde }g^{-1}: \mathbb{R} \rightarrow (0,\ +\infty)$
-
-$\text{Luego se tiene que: } P_Y(y) = P_X(g^{-1}(y)) \left| \frac{d}{dy} g^{-1}(y) \right|$
-$\text{Luego se tiene que: } P_Y(y) = P_X(e^{y}) \left| \frac{d}{dy} e^{y} \right|$
+$$P_Y(y) = P_X(e^{y}) \left| \frac{d}{dy} e^{y} \right| = P_X(e^{y})\left| e^{y} \right|$$
 
 $\text{De esta forma podemos graficar la función de densidad de } Y = log(X)$
 
-
-
-```{r , echo=FALSE, message=FALSE, warning=FALSE}
-
+```{r f2,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Distribucion de densidad de Y = log(X)"}
 # Creamos una funcion:
 py <- function(y){
-  dgamma(exp(y), shape = 3, rate = 2) * exp(y) # Correccion
+  dgamma(exp(y), shape = 3, rate = 2) * exp(y) 
 }
 
-
-# Cremos una grilla de valores de y:
-# X está en los reales positivos
+# Creamos una grilla de valores de y:
 # Y está en los reales
-grid_y <- seq(-5, 5, length.out = 10000)
-# Probamos con -5 y 5 por los valores de los parámetros de la gamma
-# depende donde se concentran los valores
-# E y V de transformacion de la variable
+grid_y <- seq(-4, 3, length.out = 10000)
 
+# Creamos la grilla de las p_y
 grid_p_y <- py(grid_y)
 
-ggplot(data.frame(x = grid_y, y = grid_p_y))  +
-  geom_line ( aes(x = x, y =y), linewidth = 1)
-# No es una distribucion conocida
+# Graficamos la funcion de densidad de Y
+ggplot(data.frame(x = grid_y, y = grid_p_y), aes(x = x, y = y))  +
+  geom_area(fill = "#44A699", alpha = 0.5) +
+  geom_line(linewidth = 0.8, color = "#44A699") +
+  labs(y = TeX("$f_Y(y)$"),
+       x= "y") + 
+  scale_x_continuous(expand = expansion(mult = c(0, 0.05))) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  theme_bw() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+  )
+```
+Dadas las funciones de densidad para las variables $X$ e $Y=log(X)$, tal como se ilustra en las Figuras @ref(fig:f1) y @ref(fig:f2) respectivamente, se consideró la aplicación del algoritmo de Metropolis-Hastings para generar 10000 muestras de $X$.
+Si bien la distribución normal suele ser una elección inicial conveniente para generar propuestas de nuevos valores en el algoritmo de Metropolis-Hastings, su aplicación en espacios paramétricos acotados puede resultar ineficiente debido al incremento en la tasa de rechazo generado por propuestas fuera del dominio, lo que ralentiza la exploración del espacio paramétrico y la convergencia del algoritmo.
+Por lo que se optó por realizar el proceso de muestreo sobre la variable transformada $Y=log(X)$, utilizando una distribución normal como función de propuesta, con una desviación estándar $\sigma = 0.2$ y centrada en un valor inicial de $\mu = 0$. Esta estrategia de trabajar en un espacio no acotado permitió seguir utilizando las propiedades convenientes de la distribución normal como propuesta.
 
-# "ignoramos que existe rgamma"
-grid_x <- seq(0, 6, length.out = 500)
-grid_px <- dgamma(grid_x, 3, 2)
-ggplot(data.frame(x = grid_x, y = grid_px)) +
-  geom_line(aes(x =x, y=y), linewidth = 1)
 
-
+```{r f3,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
 # Sacamos muestras:
-
 # Hacemos un nuevo grid_py:
-grid_y <- seq(-5, 5, length.out = 10000)
+grid_y <- seq(-4, 3, length.out = 10000)
 
-muestra <- metropolis_hastings_normal(n = 10000,
-                           x = 0,
-                           sigma = 0.2,
-                           p = py)
+muestra <- metropolis_hastings_normal(
+  n = 10000,
+  x = 0,
+  sigma = 0.2,
+  p = py
+  )
 
 # Graficando:
 graficar_distribucion(muestra, 
@@ -305,15 +307,44 @@ graficar_distribucion(muestra,
                       x_grid = grid_y, 
                       # En el eje y van los valores de P(y) 
                       p_grid = py(grid_y))
+```
 
+
+
+
+
+
+
+```{r f5,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
 graficar_traza(muestra)
+```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r f6,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
+
+# Medidas de diagnóstico (podemos resumir lo explicado abajo con esto)
 # Copiando lo del profe:
 muestras <- metropolis_hastings_normal(
   n = 10000,
   x = 0,
   p = py ,
-  sigma = 0.8 # Estaría bueno agregar qué pasa con otros valores de sigma
+  sigma = 0.8 #Estaría bueno agregar qué pasa con otros valores de sigma
 )
 
 # PONER:
@@ -323,14 +354,27 @@ graficar_distribucion(muestras, grid_y, py(grid_y))
 # no se nota mucho porque son muchas muestras, pero presenta autocorrelacion
 # Con un sigma más grande, puede verse que hay menor autocorrelacion
 # (sigma = 0.8)
+```
 
+
+
+
+
+
+
+
+```{r}
 # Transformamos las muestras de Y a muestras de X:
 muestras_x <- exp(muestras)
 
 # "Sabemos el resultado" entonces comparamos lo que simulamos"
 # con lo que tiene que dar
 graficar_distribucion(muestras_x, grid_x, grid_px)
+```
 
+
+
+```{r}
 # En el ejercicio 2, no conocemos la azul
 # Ahí calculamos la empírica con la teórica
 
@@ -459,6 +503,23 @@ graficar_traza(muestras_x)
 
 # Seguir el orden del enunciado sin remarcar las partes del tp
 
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
 #/////////////////////////////////////////////////////////////
 #                             Parte 2
 #/////////////////////////////////////////////////////////////
@@ -488,7 +549,16 @@ log_posterior(
   params = c(0, log(2)),
   y_vector = rnorm(10, mean = 0, sd = log(2))
   )
+```
 
+
+
+
+
+
+
+
+```{r}
 #ITEM 5
 library(purrr)
 
@@ -564,34 +634,25 @@ graficar_distribucion(
 
 
 
-
 ### Free practice: múltiples dimensiones {#Objetivo-2}
 
 paso 1) transformar los parametros tal que su dominio sea R^p
-paso 2) tener posterior no normalizado de $\theta^* $ donde $\theta^* = {\mu, \sigma^*} $ 
-         $ \sigma^* = log(\sigma)$
+paso 2) tener posterior no normalizado de $\theta^*$ donde $\theta^* = {\mu, \sigma^*}$ 
+         $\sigma^* = log(\sigma)$
 paso 3) obtener el posterior no normalizado de theta* en escala logaritmica
 paso 4) obtener muestras de theta*
 paso 5) convertir las muestras de theta* en muestras de theta
 
-$$
-(a)\\
-P(\mu, \sigma^* \mid y) ~ P_y(y \mid \mu, \sigma^*)P_\mu(\mu)P_\sigma^*(\sigma^*)
+$$(a)$$
+$$P(\mu, \sigma^* \mid y) ~ P_y(y \mid \mu, \sigma^*)P_\mu(\mu)P_\sigma^*(\sigma^*)$$
+$$(b)$$
+$$P_\sigma^*(\sigma^*) = P_\sigma^*(g^1 (\sigma^*))\mid d/d\sigma^* (g^1 (\sigma^*)) \mid$$
 
-\\
-(b)
-\\
-P_\sigma^*(\sigma^*) = P_\sigma^*(g^1 (\sigma^*))\mid d/d\sigma^* (g^1 (\sigma^*)) \mid
-\\
+$$= P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*) $$
 
-= P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*) 
+$$(a),(b)$$
 
-\\
-(a),(b)
-\\
-
-[\prod P_y(y_i \mid \mu,\exp(\sigma^*))]*P_\mu(\mu)*P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*)  
-$$
+$$[\prod P_y(y_i \mid \mu,\exp(\sigma^*))]*P_\mu(\mu)*P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*)$$
 
 
 ```{r}
