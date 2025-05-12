@@ -29,6 +29,7 @@ editor_options:
   markdown: 
     wrap: 72
 ---
+
 ```{=tex}
 \begin{titlepage}
 \centering
@@ -50,42 +51,116 @@ editor_options:
 
 # Introducción
 
-El ozono $(O_3)$, una molécula de tres átomos de oxígeno, exhibe una fascinante dualidad en su comportamiento y efectos. En las capas superiores de la atmósfera, conforma la vital capa de ozono, un escudo protector que filtra la radiación ultravioleta del sol, permitiendo la vida tal como la conocemos. Sin embargo, a nivel de la superficie terrestre, este mismo gas se transforma en un contaminante atmosférico de considerable impacto negativo, afectando la salud humana a través de la irritación del sistema respiratorio y ocular, el desencadenamiento de episodios de asma y el deterioro de la función pulmonar. Además, su presencia en el aire urbano contribuye al smog y puede causar daños significativos en la vegetación.
+El ozono $(O_3)$, una molécula de tres átomos de oxígeno, exhibe una
+fascinante dualidad en su comportamiento y efectos. En las capas
+superiores de la atmósfera, conforma la vital capa de ozono, un escudo
+protector que filtra la radiación ultravioleta del sol, permitiendo la
+vida tal como la conocemos. Sin embargo, a nivel de la superficie
+terrestre, este mismo gas se transforma en un contaminante atmosférico
+de considerable impacto negativo, afectando la salud humana a través de
+la irritación del sistema respiratorio y ocular, el desencadenamiento de
+episodios de asma y el deterioro de la función pulmonar. Además, su
+presencia en el aire urbano contribuye al smog y puede causar daños
+significativos en la vegetación.
 
-Ante la creciente preocupación por los efectos del ozono a nivel del suelo, Brian Tarkington, investigador del California Primate Research Center, llevó a cabo un estudio con el objetivo de cuantificar su impacto en el desarrollo de organismos vivos. Específicamente, se propuso investigar si la exposición a un ambiente enriquecido con ozono afectaba el crecimiento de ratas jóvenes. Para ello, diseñó un experimento controlado donde un grupo de 46 ratas de la misma edad fueron divididas aleatoriamente en dos subgrupos iguales. Uno de estos grupos fue expuesto a un ambiente con alta concentración de ozono, mientras que el otro se mantuvo en un ambiente libre de este gas. Tras un período de siete días, se registró la diferencia en el peso de cada animal, generando un conjunto de datos que permite analizar comparativamente el efecto de la exposición al ozono.
+Ante la creciente preocupación por los efectos del ozono a nivel del
+suelo, Brian Tarkington, investigador del California Primate Research
+Center, llevó a cabo un estudio con el objetivo de cuantificar su
+impacto en el desarrollo de organismos vivos. Específicamente, se
+propuso investigar si la exposición a un ambiente enriquecido con ozono
+afectaba el crecimiento de ratas jóvenes. Para ello, diseñó un
+experimento controlado donde un grupo de 46 ratas de la misma edad
+fueron divididas aleatoriamente en dos subgrupos iguales. Uno de estos
+grupos fue expuesto a un ambiente con alta concentración de ozono,
+mientras que el otro se mantuvo en un ambiente libre de este gas. Tras
+un período de siete días, se registró la diferencia en el peso de cada
+animal, generando un conjunto de datos que permite analizar
+comparativamente el efecto de la exposición al ozono.
 
-El presente informe se centra en el análisis de estos datos utilizando la metodología de la Estadística Bayesiana. En particular, se explorarán dos modelos probabilísticos con sutiles diferencias en su formulación. El primer modelo, basado en la distribución normal, con medias $(\mu_O,\ \mu_C)$ y varianzas $(\sigma_O^2,\ \sigma_C^2)$ específicas, representa un enfoque clásico y ampliamente utilizado en el análisis estadístico. El segundo modelo, en contraste, emplea la distribución T de Student con grados de libertad $(v = 3)$ para capturar posibles colas más pesadas en la distribución de los datos. La comparación de los resultados obtenidos bajo ambos modelos permitirá no solo responder a la pregunta de investigación planteada por Tarkington, sino también profundizar en la sensibilidad de las conclusiones a las asunciones distribucionales realizadas.
+El presente informe se centra en el análisis de estos datos utilizando
+la metodología de la Estadística Bayesiana. En particular, se explorarán
+dos modelos probabilísticos con sutiles diferencias en su formulación.
+El primer modelo, basado en la distribución normal, con medias
+$(\mu_O,\ \mu_C)$ y varianzas $(\sigma_O^2,\ \sigma_C^2)$ específicas,
+representa un enfoque clásico y ampliamente utilizado en el análisis
+estadístico. El segundo modelo, en contraste, emplea la distribución T
+de Student con grados de libertad $(v = 3)$ para capturar posibles colas
+más pesadas en la distribución de los datos. La comparación de los
+resultados obtenidos bajo ambos modelos permitirá no solo responder a la
+pregunta de investigación planteada por Tarkington, sino también
+profundizar en la sensibilidad de las conclusiones a las asunciones
+distribucionales realizadas.
 
-Más allá de la comparación de estos modelos y la respuesta a la pregunta de investigación sobre el efecto del ozono, el objetivo principal del estudio es profundizar el uso del algoritmo de Metropolis-Hastings (MH) como un método de la inferencia bayesiana. Este algoritmo se vuelve esencial cuando la distribución de probabilidad a posteriori de los parámetros de interés no tiene una forma analítica conocida, lo que dificulta la obtención directa de medidas de resúmenes o la realización de inferencias.
-En esencia, el algoritmo de Metropolis-Hastings funciona como un proceso iterativo que genera una secuencia de valores (una cadena de Markov) que, bajo ciertas condiciones, converge a la distribución a posteriori deseada. Partiendo de un valor inicial para los parámetros, el algoritmo sugiere un nuevo valor $propuesto$ basado en una distribución conocida. Este nuevo valor es luego aceptado o rechazado según una probabilidad $\alpha$ que depende de la razón entre la verosimilitud de los datos bajo el nuevo valor de los parámetros y la verosimilitud bajo el valor actual, multiplicada por la razón de las probabilidades a priori de los dos valores. 
+Más allá de la comparación de estos modelos y la respuesta a la pregunta
+de investigación sobre el efecto del ozono, el objetivo principal del
+estudio es profundizar el uso del algoritmo de Metropolis-Hastings (MH)
+como un método de la inferencia bayesiana. Este algoritmo se vuelve
+esencial cuando la distribución de probabilidad a posteriori de los
+parámetros de interés no tiene una forma analítica conocida, lo que
+dificulta la obtención directa de medidas de resúmenes o la realización
+de inferencias. En esencia, el algoritmo de Metropolis-Hastings funciona
+como un proceso iterativo que genera una secuencia de valores (una
+cadena de Markov) que, bajo ciertas condiciones, converge a la
+distribución a posteriori deseada. Partiendo de un valor inicial para
+los parámetros, el algoritmo sugiere un nuevo valor $propuesto$ basado
+en una distribución conocida. Este nuevo valor es luego aceptado o
+rechazado según una probabilidad $\alpha$ que depende de la razón entre
+la verosimilitud de los datos bajo el nuevo valor de los parámetros y la
+verosimilitud bajo el valor actual, multiplicada por la razón de las
+probabilidades a priori de los dos valores.
 
 $\alpha = \min \left\{ 1, \frac{p(y')q(y^{(t)} | y')}{p(y^{(t)})q(y' | y^{(t)})} \right\}$
 
-Si el valor $propuesto$ tiene una mayor probabilidad a posteriori (o una probabilidad no mucho menor), es más probable que sea aceptado. Si es rechazado, el valor actual se mantiene para la siguiente iteración. Tras un número suficiente de iteraciones, las muestras generadas por el algoritmo se aproxima a la distribución del $posterior$ objetivo y asi calcular diversas cantidades de interés, como medias, medianas, intervalos de credibilidad, etc. La clave del algoritmo radica en la elección adecuada de la distribución de propuesta para asegurar una exploración eficiente del espacio de parámetros y una rápida convergencia a la distribución objetivo.
-
+Si el valor $propuesto$ tiene una mayor probabilidad a posteriori (o una
+probabilidad no mucho menor), es más probable que sea aceptado. Si es
+rechazado, el valor actual se mantiene para la siguiente iteración. Tras
+un número suficiente de iteraciones, las muestras generadas por el
+algoritmo se aproxima a la distribución del $posterior$ objetivo y asi
+calcular diversas cantidades de interés, como medias, medianas,
+intervalos de credibilidad, etc. La clave del algoritmo radica en la
+elección adecuada de la distribución de propuesta para asegurar una
+exploración eficiente del espacio de parámetros y una rápida
+convergencia a la distribución objetivo.
 
 \newpage
 
 # Modelización Estadística
-Para dar respuesta a la pregunta planteada por Tarkington respecto al efecto del ozono en el crecimiento de ratas, recurrimos a modelos bayesianos, se consideraron dos modelos probabilísticos similares pero con diferencias sutiles en su estructura. Esto nos permite no solo evaluar el efecto del ozono sobre el crecimiento de las ratas, sino también explorar cómo distintos supuestos sobre la distribución de los datos pueden influir en los resultados inferenciales.
+
+Para dar respuesta a la pregunta planteada por Tarkington respecto al
+efecto del ozono en el crecimiento de ratas, recurrimos a modelos
+bayesianos, se consideraron dos modelos probabilísticos similares pero
+con diferencias sutiles en su estructura. Esto nos permite no solo
+evaluar el efecto del ozono sobre el crecimiento de las ratas, sino
+también explorar cómo distintos supuestos sobre la distribución de los
+datos pueden influir en los resultados inferenciales.
 
 ## Modelo Normal
-El primer enfoque se basa en el tradicional modelo normal, ampliamente utilizado en el análisis estadístico. En este modelo, se asume que el cambio de peso en las ratas sigue una distribución normal, con medias y varianzas específicas para cada grupo (grupo expuesto al ozono y grupo control).
+
+El primer enfoque se basa en el tradicional modelo normal, ampliamente
+utilizado en el análisis estadístico. En este modelo, se asume que el
+cambio de peso en las ratas sigue una distribución normal, con medias y
+varianzas específicas para cada grupo (grupo expuesto al ozono y grupo
+control).
 
 $$Y_{O,i} \sim Normal(\mu_O, \sigma_O^2) \quad i = 1,...,N_O$$
 $$Y_{C,j} \sim Normal(\mu_C, \sigma_C^2) \quad j = 1,...,N_C$$
 $$\mu_O, \mu_C \sim Normal(0, 5^2)$$
 $$\sigma_O^2, \sigma_C^2 \sim Gamma(\alpha = 6, \beta = 2)$$
 
-donde $Y_{O,i}$ representa el cambio de peso en la i-ésima rata del grupo expuesto al ozono, y $Y_{C,j}$ representa el cambio correspondiente en la j-ésima rata del grupo control.
+donde $Y_{O,i}$ representa el cambio de peso en la i-ésima rata del
+grupo expuesto al ozono, y $Y_{C,j}$ representa el cambio
+correspondiente en la j-ésima rata del grupo control.
 
 ## Modelo T de Student
-El segundo modelo la distribución de los datos se modela mediante una distribución T de Student con 3 grados de libertad. Esta alternativa resulta especialmente útil cuando se desea robustez frente a posibles valores atípicos o colas pesadas en la distribución de los datos.
+
+El segundo modelo la distribución de los datos se modela mediante una
+distribución T de Student con 3 grados de libertad. Esta alternativa
+resulta especialmente útil cuando se desea robustez frente a posibles
+valores atípicos o colas pesadas en la distribución de los datos.
 $$Y_{O,i} \sim Studen-T(\mu_O, \sigma_O^2) \quad i = 1,...,N_O$$
 $$Y_{C,j} \sim Studen-T(\mu_C, \sigma_C^2) \quad j = 1,...,N_C$$
 $$\mu_O, \mu_C \sim Normal(0, 5^2)$$
 $$\sigma_O^2, \sigma_C^2 \sim Gamma(\alpha = 6, \beta = 2)$$
-
 
 \newpage
 
@@ -240,12 +315,18 @@ crear_df_muestras <- function(muestras) {
 
 ```
 
-
 # Metropolis-Hastings en espacios paramétricos acotados {#Objetivo-1}
 
-El algoritmo de Metropolis-Hastings, implementado en escala logarítmica, constituye una herramienta robusta para obtener muestras del $posterior$. Sin embargo, su aplicación directa a modelos complejos puede ser desafiante sin una sólida comprensión de sus fundamentos y técnicas asociadas.
-Como preparación para la aplicación del algoritmo de Metropolis-Hastings a los modelos bayesianos propuestos en este trabajo, se llevó a cabo una exploración inicial del algoritmo en escenarios más simples.
-Se comenzó con un escenario donde $X$ es la variable aleatoria de interés, cuya función de densidad corresponde a una distribución Gamma con parámetros $\alpha = 3$ y $\beta = 2$ ($X \sim Gamma(3,2)$).
+El algoritmo de Metropolis-Hastings, implementado en escala logarítmica,
+constituye una herramienta robusta para obtener muestras del
+$posterior$. Sin embargo, su aplicación directa a modelos complejos
+puede ser desafiante sin una sólida comprensión de sus fundamentos y
+técnicas asociadas. Como preparación para la aplicación del algoritmo de
+Metropolis-Hastings a los modelos bayesianos propuestos en este trabajo,
+se llevó a cabo una exploración inicial del algoritmo en escenarios más
+simples. Se comenzó con un escenario donde $X$ es la variable aleatoria
+de interés, cuya función de densidad corresponde a una distribución
+Gamma con parámetros $\alpha = 3$ y $\beta = 2$ ($X \sim Gamma(3,2)$).
 
 ```{r f1,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Distribucion de densidad de X" }
 # Cremos una grilla de valores de x:
@@ -268,15 +349,20 @@ ggplot(data.frame(x = grid_x, y = grid_px), aes(x = x, y = y)) +
     panel.grid.minor = element_blank(),
   )
 ```
-La Figura @ref(fig:f1) ilustra la forma de la distribución de densidad de la variable aleatoria $X$.
 
-A continuación, se propone encontrar la función de densidad de una nueva variable aleatoria $Y=log(X)$. Para ello, recurrimos a la técnica de transformación de variables de la siguiente manera:
+La Figura @ref(fig:f1) ilustra la forma de la distribución de densidad
+de la variable aleatoria $X$.
+
+A continuación, se propone encontrar la función de densidad de una nueva
+variable aleatoria $Y=log(X)$. Para ello, recurrimos a la técnica de
+transformación de variables de la siguiente manera:
 
 $\text{Sea }Y = g(X) = log(x) \text{, donde la función } g:(0,\ +\infty) \rightarrow \mathbb{R}.$
 
 $\text{Hallamos la función inversa: }g^{-1}(X) = e^{X} \text{, con dominio } g^{-1}: \mathbb{R} \rightarrow (0,\ +\infty).$
 
-Luego, la función de densidad de $Y$, $P_Y(y)$, se obtiene a partir de la función de densidad $X$, $P_X(x)$, utilizando la siguiente relación:
+Luego, la función de densidad de $Y$, $P_Y(y)$, se obtiene a partir de
+la función de densidad $X$, $P_X(x)$, utilizando la siguiente relación:
 
 $$P_Y(y) = P_X(g^{-1}(y)) \left| \frac{d}{dy} g^{-1}(y) \right|$$
 $\text{Sustituyendo } g^{-1}(y) = e^{y}, \text{ obtenemos:}$
@@ -312,10 +398,23 @@ ggplot(data.frame(x = grid_y, y = grid_p_y), aes(x = x, y = y))  +
     panel.grid.minor = element_blank(),
   )
 ```
-Dadas las funciones de densidad para las variables $X$ e $Y=log(X)$, tal como se ilustra en las Figuras @ref(fig:f1) y @ref(fig:f2) respectivamente, se consideró la aplicación del algoritmo de Metropolis-Hastings para generar 10000 muestras de $X$.
-Si bien la distribución normal suele ser una elección inicial conveniente para generar propuestas de nuevos valores en el algoritmo de Metropolis-Hastings, su aplicación en espacios paramétricos acotados puede resultar ineficiente debido al incremento en la tasa de rechazo generado por propuestas fuera del dominio, lo que ralentiza la exploración del espacio paramétrico y la convergencia del algoritmo.
-Por lo que se optó por realizar el proceso de muestreo sobre la variable transformada $Y=log(X)$, utilizando una distribución normal como función de propuesta, con una desviación estándar $\sigma = 0.2$ y centrada en un valor inicial de $\mu = 0$. Esta estrategia de trabajar en un espacio no acotado permitió seguir utilizando las propiedades convenientes de la distribución normal como propuesta.
 
+Dadas las funciones de densidad para las variables $X$ e $Y=log(X)$, tal
+como se ilustra en las Figuras @ref(fig:f1) y @ref(fig:f2)
+respectivamente, se consideró la aplicación del algoritmo de
+Metropolis-Hastings para generar 10000 muestras de $X$. Si bien la
+distribución normal suele ser una elección inicial conveniente para
+generar propuestas de nuevos valores en el algoritmo de
+Metropolis-Hastings, su aplicación en espacios paramétricos acotados
+puede resultar ineficiente debido al incremento en la tasa de rechazo
+generado por propuestas fuera del dominio, lo que ralentiza la
+exploración del espacio paramétrico y la convergencia del algoritmo. Por
+lo que se optó por realizar el proceso de muestreo sobre la variable
+transformada $Y=log(X)$, utilizando una distribución normal como función
+de propuesta, con una desviación estándar $\sigma = 0.2$ y centrada en
+un valor inicial de $\mu = 0$. Esta estrategia de trabajar en un espacio
+no acotado permitió seguir utilizando las propiedades convenientes de la
+distribución normal como propuesta.
 
 ```{r f3,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
 # Sacamos muestras:
@@ -346,8 +445,15 @@ graficar_distribucion(muestra,
 graficar_traza(muestra, ylab = "y", color = "#44A699" )
 ```
 
-Tras la implementación del método, y tal como se evidencia en la Figura @ref(fig:f3), las muestras obtenidas presentan una semejanza notable con la distribución objetivo. Además, la Figura @ref(fig:f4) (trace plot) revela una baja autocorrelación en las cadenas de Markov generadas.Esto sugiere un buen ajuste del algoritmo de Metropolis-Hastings, resultado de su aplicación sobre la variable aleatoria Y, cuyo dominio resultó apropiado para la distribución de propuesta utilizada.
-Para una evaluación más exhaustiva de la calidad del ajuste del método implementado, se calcularon las siguientes medidas de diagnóstico.
+Tras la implementación del método, y tal como se evidencia en la Figura
+@ref(fig:f3), las muestras obtenidas presentan una semejanza notable con
+la distribución objetivo. Además, la Figura @ref(fig:f4) (trace plot)
+revela una baja autocorrelación en las cadenas de Markov generadas.Esto
+sugiere un buen ajuste del algoritmo de Metropolis-Hastings, resultado
+de su aplicación sobre la variable aleatoria Y, cuyo dominio resultó
+apropiado para la distribución de propuesta utilizada. Para una
+evaluación más exhaustiva de la calidad del ajuste del método
+implementado, se calcularon las siguientes medidas de diagnóstico.
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -389,8 +495,6 @@ calcular_n_eff <- function(muestras) {
 
 ```
 
-
-
 ```{r f5,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de 4 cadenas "}
 # Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
 muestras_md <- list()
@@ -421,13 +525,7 @@ graficar_trazas_md(df_muestras_md, ylab = "y")
 
 ```
 
-
-
-
-
-
-
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+```{r f6,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
 library(knitr)
 library(kableExtra)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
@@ -448,7 +546,13 @@ tabla_diagnostico <- data.frame(
 )
 
 # Imprimir la tabla usando kable con opciones de kableExtra
-kable(tabla_diagnostico, col.names = c("Métrica", "Valor"), caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings", escape = FALSE) %>%
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   column_spec(2, width = "3cm")
 
@@ -462,11 +566,6 @@ kable(tabla_diagnostico, col.names = c("Métrica", "Valor"), caption = "Medidas 
 #Así, se concluye que no se pueden utilizar las muestras para realizar inferencia. 
 #Decidimos incrementar el desvío estándar de la distribución de propuesta.
 ```
-
-
-
-
-
 
 
 
@@ -489,9 +588,6 @@ graficar_distribucion(muestras, grid_y, py(grid_y), xlab = "y", ylab = TeX("$f_Y
 # (sigma = 0.8)
 ```
 
-
-
-
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 # Transformamos las muestras de Y a muestras de X:
 muestras_x <- exp(muestras)
@@ -500,15 +596,13 @@ muestras_x <- exp(muestras)
 # con lo que tiene que dar
 graficar_distribucion(muestras_x, grid_x, grid_px , ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
 ```
+
 ```{r}
 # En el ejercicio 2, no conocemos la azul
 # Ahí calculamos la empírica con la teórica
 
 graficar_traza(muestras_x, color = "#3b78b0")
 ```
-
-
-
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 # Las muestras son las mismas, pero en escala logaritmica
@@ -639,17 +733,6 @@ muestras_x <- exp(muestralog)
 
 ```
 
-
-
-
-
-
-
-
-
-
-
-
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 #/////////////////////////////////////////////////////////////
 #                             Parte 2
@@ -681,13 +764,6 @@ log_posterior(
   y_vector = rnorm(10, mean = 0, sd = log(2))
   )
 ```
-
-
-
-
-
-
-
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 #ITEM 5
@@ -743,42 +819,14 @@ graficar_distribucion(
 plot_trace(muestras_theta_estrella[ ,2], color = "orange")
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### Free practice: múltiples dimensiones {#Objetivo-2}
 
-paso 1) transformar los parametros tal que su dominio sea R^p
-paso 2) tener posterior no normalizado de $\theta^*$ donde $\theta^* = {\mu, \sigma^*}$ 
-         $\sigma^* = log(\sigma)$
-paso 3) obtener el posterior no normalizado de theta* en escala logaritmica
-paso 4) obtener muestras de theta*
-paso 5) convertir las muestras de theta* en muestras de theta
+paso 1) transformar los parametros tal que su dominio sea R\^p paso 2)
+tener posterior no normalizado de $\theta^*$ donde
+$\theta^* = {\mu, \sigma^*}$ $\sigma^* = log(\sigma)$ paso 3) obtener el
+posterior no normalizado de theta\* en escala logaritmica paso 4)
+obtener muestras de theta *paso 5) convertir las muestras de theta* en
+muestras de theta
 
 $$(a)$$
 $$P(\mu, \sigma^* \mid y) ~ P_y(y \mid \mu, \sigma^*)P_\mu(\mu)P_\sigma^*(\sigma^*)$$
@@ -790,7 +838,6 @@ $$= P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*) $$
 $$(a),(b)$$
 
 $$[\prod P_y(y_i \mid \mu,\exp(\sigma^*))]*P_\mu(\mu)*P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*)$$
-
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 ## Segunda parte
@@ -861,9 +908,7 @@ graficar_distribucion(muestras_theta_estrella[,1], x_grid = 1, p_grid = 1)
 
 ```
 
-Son muestras obtenidas a partir d ela distribucion log, cuando aun no habian convergido
-
+Son muestras obtenidas a partir d ela distribucion log, cuando aun no
+habian convergido
 
 ### El Gran Prix: ¿qué le decimos a Brian? {#Objetivo-3}
-
-
