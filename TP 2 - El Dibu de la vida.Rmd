@@ -105,25 +105,30 @@ library(purrr)
 library(latex2exp)
 
 # Funciones estandar para graficar
-graficar_distribucion <- function(x_muestras, x_grid, p_grid) {
+graficar_distribucion <- function(x_muestras, x_grid, p_grid, xlab = "x" ,ylab = "y", color = "grey60", color_l = "#3b78b0") {
   # Graficar histograma de las muestras con la curva de densidad teórica superpuesta.
   plt <- ggplot() +
     geom_histogram(
       aes(x = x, y = after_stat(density)),
-      fill = "grey60",
+      fill = color,     #cambie
+      alpha = 0.5,      #agregue
+      color = "white",  #agregue
+      linewidth = 0.1,  #agregue
       bins = 50,
       data = data.frame(x = x_muestras)
     ) +
     geom_line(
       aes(x = x, y = y),
-      color = "#3b78b0",
-      linewidth = 1,
+      color = color_l,  #cambie
+      linewidth = 0.8, #cambie
       data = data.frame(x = x_grid, y = p_grid)
     ) +
-    labs(y = NULL) +
+    labs(y = ylab,      #cambie
+       x= xlab) +       #agregue
     theme_bw() +
     theme(
       panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(), #agregue
       axis.ticks.y = element_blank(),
       axis.text.y = element_blank(),
       legend.position = "none"
@@ -131,12 +136,27 @@ graficar_distribucion <- function(x_muestras, x_grid, p_grid) {
   return(plt)
 }
 
-graficar_traza <- plot_trace <- function(x_muestras) {
+
+graficar_trazas_md <- function(df_muestras, ylab = "x" , colors = c("#107591", "#00c0bf", "#f69a48", "#fdcd49") ) {
+  # Generar un _traceplot_ para 4 cadena de Markov.
+  plt <- ggplot(df_muestras) +
+    geom_line(aes(x = paso, y = valor, group = cadena, color = cadena)) +
+    scale_color_manual(values = colors) +
+    labs(x = "Paso", y = ylab) +
+    theme_bw()
+  theme(
+    panel.grid.minor = element_blank()
+  )
+  
+  return(plt)
+}
+
+graficar_traza <- plot_trace <- function(x_muestras, color = "grey30", ylab = "x") {
   # Generar un _traceplot_ para una cadena de Markov.
   plt <- data.frame(x = seq_along(x_muestras), y = x_muestras) |>
     ggplot() +
-    geom_line(aes(x = x, y = y), color = "grey30") +
-    labs(x = "Paso", y = "x") +
+    geom_line(aes(x = x, y = y), color = color , alpha = 0.8) + #agregue alpha
+    labs(x = "Paso", y = ylab) + #cambie
     theme_bw()
   theme(
     panel.grid.major = element_blank(),
@@ -148,7 +168,6 @@ graficar_traza <- plot_trace <- function(x_muestras) {
 }
 
 # Traemos las funciones que vamos a utilizar para el método de Metropolis-Hastings
-
 metropolis_hastings_normal <- function(n, x, p, sigma, verbose = FALSE) {
   # Algortimo de Metropolis Hastings en una dimensión.
   # La distribución de propuesta es normal.
@@ -160,12 +179,7 @@ metropolis_hastings_normal <- function(n, x, p, sigma, verbose = FALSE) {
   #  sigma     -Desvío estándar de la distribución de propuesta normal.     
   #  verbose   -Indica si se muestran mensajes con información del          
   #             algoritmo en cada paso.                                     
-  #  ------------------------------------------------------------------------
-  #  Salida
-  #  ------------------------------------------------------------------------
-  #  muestras | Vector con las muestras obtenidas.                          
-  #  ------------------------------------------------------------------------
-  
+ 
   muestras <- numeric(n)
   muestras[1] <- x
   
@@ -207,6 +221,21 @@ metropolis_hastings_normal <- function(n, x, p, sigma, verbose = FALSE) {
   }
   
   return(muestras)
+}
+
+crear_df_muestras <- function(muestras) {
+  # Muestras es una lista de vectores.
+  # Hay tantos vectores como cadenas.
+  
+  n_cadenas <- length(muestras)
+  n_muestras <- length(muestras[[1]])
+  
+  df <- data.frame(
+    cadena = as.factor(rep(seq_len(n_cadenas), each = n_muestras)),
+    paso = rep(seq_len(n_muestras), n_cadenas),
+    valor = unlist(muestras)
+  )
+  return(df)
 }
 
 ```
@@ -306,7 +335,90 @@ graficar_distribucion(muestra,
                       # "simulados" de y)
                       x_grid = grid_y, 
                       # En el eje y van los valores de P(y) 
-                      p_grid = py(grid_y))
+                      p_grid = py(grid_y),
+                      xlab = "y",
+                      ylab = TeX("$f_Y(y)$"),
+                      color = "#44A699",
+                      color_l = "#44A699")
+```
+
+```{r f4,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
+graficar_traza(muestra, ylab = "y", color = "#44A699" )
+```
+
+Tras la implementación del método, y tal como se evidencia en la Figura @ref(fig:f3), las muestras obtenidas presentan una semejanza notable con la distribución objetivo. Además, la Figura @ref(fig:f4) (trace plot) revela una baja autocorrelación en las cadenas de Markov generadas.Esto sugiere un buen ajuste del algoritmo de Metropolis-Hastings, resultado de su aplicación sobre la variable aleatoria Y, cuyo dominio resultó apropiado para la distribución de propuesta utilizada.
+Para una evaluación más exhaustiva de la calidad del ajuste del método implementado, se calcularon las siguientes medidas de diagnóstico.
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+
+# Funciones para medidas de diagnostico
+# Diagnóstico R de Gelman-Rubin
+calcular_W <- function(muestras) {
+    # muestras: matriz de dimensión (n_muestras, n_cadenas)
+    return(mean(apply(muestras, 2, var)))
+}
+
+calcular_B <- function(muestras) {
+    # muestras: matriz de dimensión (n_muestras, n_cadenas)
+    S <- nrow(muestras) # cantidad de muestras
+    M <- ncol(muestras) # cantidad de cadenas
+    media_cadenas <- apply(muestras, 2, mean)
+    media_global <- mean(media_cadenas)
+    diferencias_cuadrado <- (media_cadenas - media_global) ^ 2
+    return(S / (M - 1) * sum(diferencias_cuadrado))
+}
+
+calcular_R <- function(muestras) {
+    # muestras: matriz de dimensión (n_muestras, n_cadenas)
+    S <- nrow(muestras)
+    W <- calcular_W(muestras)
+    B <- calcular_B(muestras)
+    numerador <- ((S - 1) / S) * W + B / S
+    return(sqrt(numerador / W))
+}
+
+# Tamaño efectivo de muestra N_eff
+calcular_n_eff <- function(muestras) {
+    # muestras: vector de longitud 'n_muestras'
+    autocorrelacion <- acf(muestras, lag = Inf, plot = FALSE)$acf
+    limite <- which(autocorrelacion < 0.05)[1]
+    numerador <- length(muestras)
+    denominador <- 1 + 2 * sum(autocorrelacion[2:limite])
+    return(numerador / denominador)
+}
+
+```
+
+
+
+```{r f5,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de 4 cadenas "}
+# Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
+muestras_md <- list()
+n_muestras <- 10000
+n_cadenas <- 4
+x_inicio <- 0
+sigma <- 0.2
+
+# Se llama a la función `metropolis_hastings_normal` y se guardan los resultados en una lista.
+for (j in seq_len(n_cadenas)) {
+  muestras_md[[j]] <- metropolis_hastings_normal(
+    n = n_muestras,
+    x = x_inicio,
+    p = py,
+    sigma = sigma
+  )
+}
+
+#Con esto descartamos las primeras mil muestras que aun "no convergen"
+#df_muestras <- crear_df_muestras(muestras) |> filter(paso > 1000)
+
+
+#necesario para crear el traceplot
+df_muestras_md <- crear_df_muestras(muestras_md)
+
+# Grafica las 4 trazas
+graficar_trazas_md(df_muestras_md, ylab = "y")
+
 ```
 
 
@@ -315,29 +427,53 @@ graficar_distribucion(muestra,
 
 
 
-```{r f5,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
-graficar_traza(muestra)
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+library(kableExtra)
+library(latex2exp)
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_md$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+#En el traceplot, las cadenas se mueven lentamente, lo que indica una alta autocorrelación. 
+#Además, no se mezclan y tampoco parecen converger a ninguna distribución objetivo. 
+#El valor de es considerablemente mayor a 1, lo que también señala falta de convergencia y
+#resulta consistente con lo observado en el traceplot. Además, el tamaño efectivo de muestra 
+#en cada cadena es muy bajo, y en consecuencia, el tamaño efectivo de muestra total también 
+#lo es, lo cual es coherente con cadenas que presentan una autocorrelación muy alta.
+
+#Así, se concluye que no se pueden utilizar las muestras para realizar inferencia. 
+#Decidimos incrementar el desvío estándar de la distribución de propuesta.
+```
+
+
+```{r}
+# Genera la tabla con kable y guarda el resultado como texto Markdown
+tabla_markdown <- kable(tabla_diagnostico, col.names = c("Métrica", "Valor"), caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings", escape = FALSE)
+
+```
+```{r diagnostico-table-latex, results='asis'}
+tabla_markdown <- kable(tabla_diagnostico, col.names = c("Métrica", "Valor"), caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings", escape = FALSE)
+cat("\\begin{table}[h!]\n\\centering\n")
+cat(tabla_markdown)
+cat("\n\\end{table}\n")
 ```
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r f6,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
-
+```{r,echo=FALSE, warning=FALSE, message=FALSE }
 # Medidas de diagnóstico (podemos resumir lo explicado abajo con esto)
 # Copiando lo del profe:
 muestras <- metropolis_hastings_normal(
@@ -350,7 +486,7 @@ muestras <- metropolis_hastings_normal(
 # PONER:
 # EL QUE ESTA EN EL TP 0.2, NO ES EL MEJOR QUE SE PODRÍA USAR
 
-graficar_distribucion(muestras, grid_y, py(grid_y))
+graficar_distribucion(muestras, grid_y, py(grid_y), xlab = "y", ylab = TeX("$f_Y(y)$"), color = "#44A699", color_l = "#44A699")
 # no se nota mucho porque son muchas muestras, pero presenta autocorrelacion
 # Con un sigma más grande, puede verse que hay menor autocorrelacion
 # (sigma = 0.8)
@@ -359,27 +495,25 @@ graficar_distribucion(muestras, grid_y, py(grid_y))
 
 
 
-
-
-
-
-```{r}
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
 # Transformamos las muestras de Y a muestras de X:
 muestras_x <- exp(muestras)
 
 # "Sabemos el resultado" entonces comparamos lo que simulamos"
 # con lo que tiene que dar
-graficar_distribucion(muestras_x, grid_x, grid_px)
+graficar_distribucion(muestras_x, grid_x, grid_px , ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
 ```
-
-
-
 ```{r}
 # En el ejercicio 2, no conocemos la azul
 # Ahí calculamos la empírica con la teórica
 
-graficar_traza(muestras_x)
+graficar_traza(muestras_x, color = "#3b78b0")
+```
 
+
+
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
 # Las muestras son las mismas, pero en escala logaritmica
 
 # Completamos el codigo:
@@ -487,13 +621,13 @@ muestralog <- metropolis_hastings_log(
 )
 # Normal multivariada -> matriz de variancias y covariancias
 
-graficar_distribucion(muestralog, grid_y, grid_p_y)
-graficar_traza(muestralog)
+#graficar_distribucion(muestralog, grid_y, grid_p_y) #////////////////////////////////////////////////////////////////
+#graficar_traza(muestralog)                         #////////////////////////////////////////////////////////////////
  
 # Muestras de X transformando la muestra de Y
 muestras_x <- exp(muestralog)
-graficar_distribucion(muestras_x, grid_x, grid_px)
-graficar_traza(muestras_x)
+#graficar_distribucion(muestras_x, grid_x, grid_px) #////////////////////////////////////////////////////////////////
+#graficar_traza(muestras_x)                         #////////////////////////////////////////////////////////////////            
 
 # Muestreamos usando transformacion de v.a. ES POR ESTO que volvemos a X
 # con la exponencial
@@ -519,7 +653,7 @@ graficar_traza(muestras_x)
 
 
 
-```{r}
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
 #/////////////////////////////////////////////////////////////
 #                             Parte 2
 #/////////////////////////////////////////////////////////////
@@ -558,7 +692,7 @@ log_posterior(
 
 
 
-```{r}
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
 #ITEM 5
 library(purrr)
 
@@ -583,11 +717,9 @@ muestras_theta_estrella <- metropolis_hastings_log(
 )
 dim(muestras_theta_estrella)
 
-#traceplot de mu
-plot_trace(muestras_theta_estrella[ ,1])
 
-#Traceplot de sigma estrella
-plot_trace(muestras_theta_estrella[ ,2])
+
+
 
 #Tamaño efectivo de muestra va a ser mmenor que el tamaño de nuestra
 
@@ -595,15 +727,23 @@ plot_trace(muestras_theta_estrella[ ,2])
 graficar_distribucion(
   muestras_theta_estrella[ ,1][1000:10000],
   x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
-  p_grid = 1  #
+  p_grid = 1,
+  color = "green"
   )
+
+#traceplot de mu
+plot_trace(muestras_theta_estrella[ ,1], color = "green")
 
 #histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
 graficar_distribucion(
   exp(muestras_theta_estrella[ ,2][1000:10000]), #burn-in (los quema a los primeros 1000 pasos)
   x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
-  p_grid = 1  #igual que arriba
+  p_grid = 1,  #igual que arriba
+  color = "orange"
 )
+
+#Traceplot de sigma estrella
+plot_trace(muestras_theta_estrella[ ,2], color = "orange")
 ```
 
 
@@ -655,7 +795,7 @@ $$(a),(b)$$
 $$[\prod P_y(y_i \mid \mu,\exp(\sigma^*))]*P_\mu(\mu)*P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*)$$
 
 
-```{r}
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
 ## Segunda parte
 
 # paso 1) transformar los parametros tal que su dominio sea Rp
@@ -728,82 +868,5 @@ Son muestras obtenidas a partir d ela distribucion log, cuando aun no habian con
 
 
 ### El Gran Prix: ¿qué le decimos a Brian? {#Objetivo-3}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Carga de datos
-
-```{r carga-datos, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-library(readr)
-# Cargamos el conjunto de datos
-datos <- read_csv("tarkington.csv")
-data("mtcars")
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Gráfico de ejemplo
-
-A continuación, se muestra un gráfico generado con R:
-
-```{r fig1, echo=FALSE, fig.cap="Función de dispersión"}
-
-plot(mtcars$wt, mtcars$mpg,
-     main = "Peso vs Consumo de combustible",
-     xlab = "Peso (1000 lbs)",
-     ylab = "Millas por galón",
-     pch = 19, col = "darkblue")
-
-```
-
-Como puede observarse en la Figura @ref(fig:fig1), las observaciones presentan una relación inversa entre el peso del vehículo y el rendimiento de combustible.
-
-
-```{r fig2, echo=FALSE, fig.cap="Histograma"}
-
-hist(mtcars$mpg, main = "Histograma de MPG", xlab = "Millas por galón", col = "skyblue", border = "white")
-```
-
-En la Figura @ref(fig:fig2) se observa que la mayoría de los vehículos tiene un consumo entre 15 y 25 millas por galón.
-
-
-
-
-
-
-
-
-
-
 
 
