@@ -847,61 +847,74 @@ graficar_distribucion(muestras_x, grid_x, grid_px, ylab = TeX("$f_X(x)$"), color
 graficar_traza(muestras_x, color = "#3b78b0")                           
 ```
 
+\newpage
 
-### Free practice: múltiples dimensiones {#Objetivo-2}
+## Inferencia Bayesiana en Múltiples Dimensiones {#Objetivo-2}
 
-En este escenario se le agrega que la distribución objetivo tiene múltiples dimensiones y debe ser obtenida mediante el uso de la regla de Bayes.
+En modelos bayesianos con múltiples parámetros, la distribución a posteriori conjunta se vuelve el objetivo de inferencia. En este caso, la distribución objetivo tiene múltiples dimensiones y se obtiene mediante la aplicación de la regla de Bayes.
 
-Dado el siguiente modelo:
+### Modelo Estadístico:
+\vspace{-1.6cm}
+\begin{center}
+\begin{align*}
+Y_i &\sim \text{Normal}(\mu, \sigma^2), \text{ con } i = 1, \dots, N \\
+\mu &\sim \text{Normal}(0, 1^2) \\
+\sigma &\sim \text{Gamma}(\alpha = 2, \beta = 2)
+\end{align*}
+\end{center}
 
-$$Y_i \sim \text{Normal}(\mu, \sigma^2) \text{, con } i=1,...,N$$
-$$\mu \sim \text{Normal}(0, 1^2) $$
-$$\sigma \sim \text{Gamma}(\alpha = 2, \beta = 2)$$
-Una forma convencional de obtener el posterior no normalizado es usando la regla de bayes
+La distribución a posteriori conjunta de los parámetros $\theta = \{\mu, \sigma\}$ dado los datos $y$ se obtiene mediante la regla de Bayes:
+$$p(\mu, \sigma | y) = \frac{p(y | \mu, \sigma). p(\mu, \sigma)}{p(y)} \propto p( \boldsymbol{y}  \text{ | } \mu, \ \sigma).p(\mu, \ \sigma)$$
+donde $p(y | \mu, \sigma)$ es la verosimilitud de los datos dado los parámetros, $p(\mu, \sigma) = p(\mu) p(\sigma)$ es la distribución a priori conjunta de los parámetros (asumiendo independencia entre $\mu$ y $\sigma$).
 
-$$p(\boldsymbol{\theta} \text{ | } \boldsymbol{y} ) = \dfrac{p( \boldsymbol{y}  \text{ | } \boldsymbol{\theta}). p(\boldsymbol{\theta})}{p(\boldsymbol{y})} $$
-$$p(\mu, \ \sigma \text{ | } \boldsymbol{y} ) = \dfrac{p( \boldsymbol{y}  \text{ | } \mu, \ \sigma).p(\mu, \ \sigma)}{p(\boldsymbol{y})} \propto p( \boldsymbol{y}  \text{ | } \mu, \ \sigma).p(\mu, \ \sigma)$$
-$$\text{sabiendo que }\mu \text{ y } \sigma \text{ son independientes se tiene: } $$
-$$p(\mu, \ \sigma \text{ | } \boldsymbol{y} ) \propto p( \boldsymbol{y}  \text{ | } \mu, \ \sigma).p(\mu).p(\sigma)$$
-Un posible problema para esa deduccion es el dominio de $\boldsymbol{\theta} = \{ \mu,\ \sigma \}\ \implies \boldsymbol{\theta} \in \mathbb{R} \text{ x } \mathbb{R}^+$
-Esto se soluciona haciendo una transformacion al parametro acotado de la forma $\boldsymbol{\theta^*} = \{ \mu,\ \sigma^* \}\ \implies \boldsymbol{\theta^*} \in \mathbb{R}^2 \ \text{con }\sigma^*=log(\sigma)$
+La distribución a priori conjunta es el producto de las distribuciones a priori individuales:
+$$p(\mu, \sigma) = p(\mu) . p(\sigma)$$
 
-```{r , echo=FALSE}
-# paso 1) transformar los parametros tal que su dominio sea Rp
-# paso 2) tener posterior no normalizado de theta* donde theta* =(mu, sigma*)
-#         sigma* = log(sigma)
-# paso 3) obtener el posterior no normalizado de theta* en escala logaritmica
-# paso 3.5) implemetar el paso 3 en R
-# paso 4) obtener muestras de theta*
-# paso 5) convertir las muestras de theta* en muestras de theta
-```
+### Transformación a Espacio No Acotado
 
+Un posible problema para la deducción analítica del posterior es el dominio de $\sigma$ ($\mathbb{R}^+$). Para facilitar el muestreo o la optimización, a menudo se realiza una transformación a un espacio no acotado. En este caso, se propone la transformación $\theta^* = \{\mu, \log(\sigma)\} \in \mathbb{R} \times \mathbb{R}$.
 
-$$P(\mu, \sigma^* \mid y) ~ P_y(y \mid \mu, \sigma^*)P_\mu(\mu)P_\sigma^*(\sigma^*)$$
+La relación entre $\sigma$ y $\sigma^*$ es $\sigma = \exp(\sigma^*)$
 
+### Función de Densidad del Posterior Transformado
+
+La función de densidad del posterior en el espacio transformado resulta:
+
+$$p(\mu, \sigma^* \mid y) \propto p_y(y \mid \mu, \sigma^*).p_\mu(\mu).p_\sigma^*(\sigma^*)$$
 $$\text{Teniendo en cuando la transformacion de }\sigma^* \text{ tenemos:}$$
-$$P_\sigma^*(\sigma^*) = P_\sigma^*(g^1 (\sigma^*)) \left| \dfrac{d}{d\sigma^*} (g^1 (\sigma^*)) \right| \ = \ P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*) $$
-$$\left[ \sum_{i = 1}^{N} P_y(y_i \mid \mu,\exp(\sigma^*))\right]*P_\mu(\mu)*P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*)$$
-Implemente en R una función que permita calcular la densidad a posteriori en escala logarítmica, sin incluir la constante de normalización. Esta función tendrá 2 parámetros de entrada, uno para el vector de parámetros y otro para el vector de valores observados.
+$$P_\sigma^*(\sigma^*) = p_\sigma^*(g^1 (\sigma^*)) \left| \dfrac{d}{d\sigma^*} (g^1 (\sigma^*)) \right| \ = \ p_\sigma^*(exp(\sigma^*))*\exp(\sigma^*) $$
+$$\text{De esta forma la función de densidad del posterior trasnformado resulta:}$$
+$$p(\mu, \sigma^* \mid y) \propto\left[ \sum_{i = 1}^{N} P_y(y_i \mid \mu,\exp(\sigma^*))\right]*P_\mu(\mu)*P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*)$$
+\newpage
 
-
+### Implementación en R
 
 ```{r}
-# Función de densidad del posterior en escala logarítmica
-log_posterior <- function(params, y_vector){
-   # "params" tiene longitud 2
-   mu <- params[1]
-   sigma_estrella <- params[2]
-   # salida guarda la formula para obtener el posterior
-   salida <-(
-     sum(dnorm(y_vector, mean = mu, sd = exp(sigma_estrella), log = T)) # sum(logp(y_i|mu,exp(sigma*)))
-     + dnorm(mu, mean = 0, sd = 1, log = T)   # logp(mu)
-     + dgamma(exp(sigma_estrella),shape = 2, rate = 2, log = T) # logp(exp(sigma*))
-     + sigma_estrella # sigma estrella
-   ) 
-   return(salida)
+# Función de densidad posterior en escala logarítmica (sin normalizar)
+log_posterior <- function(params, y_vector) {
+  # 'params' tiene longitud 2
+  mu <- params[1]
+  sigma_estrella <- params[2]
+  sigma <- exp(sigma_estrella) # Salida sigma debe ser positiva
+
+  # Log-verosimilitud (asumiendo datos independientes)
+  log_likelihood <- sum(dnorm(y_vector, mean = mu, sd = sigma, log = TRUE))
+
+  # Log-prior de mu
+  log_prior_mu <- dnorm(mu, mean = 0, sd = 1, log = TRUE)
+
+  # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
+  log_prior_sigma <- dgamma(sigma, shape = 2, rate = 2, log = TRUE) + sigma_estrella
+
+  # Log-posterior no normalizado
+  log_posterior_value <- log_likelihood + log_prior_mu + log_prior_sigma
+
+  return(log_posterior_value)
 }
 ```
+
+
+
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 #ITEM 5
