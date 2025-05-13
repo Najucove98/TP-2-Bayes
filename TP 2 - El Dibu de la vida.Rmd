@@ -215,7 +215,7 @@ graficar_distribucion <- function(x_muestras, x_grid, p_grid, xlab = "x" ,ylab =
 graficar_trazas_md <- function(df_muestras, ylab = "x" , colors = c("#107591", "#00c0bf", "#f69a48", "#fdcd49") ) {
   # Generar un _traceplot_ para 4 cadena de Markov.
   plt <- ggplot(df_muestras) +
-    geom_line(aes(x = paso, y = valor, group = cadena, color = cadena)) +
+    geom_line(aes(x = paso, y = valor, group = cadena, color = cadena), linewidth = 0.2) +
     scale_color_manual(values = colors) +
     labs(x = "Paso", y = ylab) +
     theme_bw()
@@ -230,7 +230,7 @@ graficar_traza <- plot_trace <- function(x_muestras, color = "grey30", ylab = "x
   # Generar un _traceplot_ para una cadena de Markov.
   plt <- data.frame(x = seq_along(x_muestras), y = x_muestras) |>
     ggplot() +
-    geom_line(aes(x = x, y = y), color = color , alpha = 0.8) + #agregue alpha
+    geom_line(aes(x = x, y = y), color = color , alpha = 0.8, linewidth = 0.2) + #agregue alpha
     labs(x = "Paso", y = ylab) + #cambie
     theme_bw()
   theme(
@@ -254,7 +254,8 @@ metropolis_hastings_normal <- function(n, x, p, sigma, verbose = FALSE) {
   #  sigma     -Desvío estándar de la distribución de propuesta normal.     
   #  verbose   -Indica si se muestran mensajes con información del          
   #             algoritmo en cada paso.                                     
- 
+  #  ------------------------------------------------------------------------
+  
   muestras <- numeric(n)
   muestras[1] <- x
   
@@ -329,6 +330,7 @@ de interés, cuya función de densidad corresponde a una distribución
 Gamma con parámetros $\alpha = 3$ y $\beta = 2$ ($X \sim Gamma(3,2)$).
 
 ```{r f1,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Distribucion de densidad de X" }
+set.seed(0398)
 # Cremos una grilla de valores de x:
 # X está en los reales positivos
 grid_x <- seq(0, 6, length.out = 500)
@@ -372,6 +374,7 @@ $$P_Y(y) = P_X(e^{y}) \left| \frac{d}{dy} e^{y} \right| = P_X(e^{y})\left| e^{y}
 $\text{De esta forma podemos graficar la función de densidad de } Y = log(X)$
 
 ```{r f2,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Distribucion de densidad de Y = log(X)"}
+set.seed(0398)
 # Creamos una funcion:
 py <- function(y){
   dgamma(exp(y), shape = 3, rate = 2) * exp(y) 
@@ -417,6 +420,7 @@ no acotado permitió seguir utilizando las propiedades convenientes de la
 distribución normal como propuesta.
 
 ```{r f3,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
+set.seed(0398)
 # Sacamos muestras:
 # Hacemos un nuevo grid_py:
 grid_y <- seq(-4, 3, length.out = 10000)
@@ -495,7 +499,8 @@ calcular_n_eff <- function(muestras) {
 
 ```
 
-```{r f5,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de 4 cadenas "}
+```{r f5,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con σ = 0.2"}
+set.seed(0398)
 # Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
 muestras_md <- list()
 n_muestras <- 10000
@@ -521,13 +526,14 @@ for (j in seq_len(n_cadenas)) {
 df_muestras_md <- crear_df_muestras(muestras_md)
 
 # Grafica las 4 trazas
-graficar_trazas_md(df_muestras_md, ylab = "y")
+graficar_trazas_md(df_muestras_md, ylab = "y", colors = c("#AEC6CF", "#F08080", "#FAEBD7", "#DDA0DD"))
 
 ```
 
 ```{r f6,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
 library(knitr)
 library(kableExtra)
+set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md$valor, ncol = n_cadenas, byrow = FALSE)
 
@@ -568,45 +574,100 @@ kable(tabla_diagnostico,
 ```
 
 
+```{r f7,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con σ = 1.3"}
+set.seed(0398)
+# Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
+muestras_md <- list()
+n_muestras <- 10000
+n_cadenas <- 4
+x_inicio <- 0
+sigma <- 1.3
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE }
-# Medidas de diagnóstico (podemos resumir lo explicado abajo con esto)
+# Se llama a la función `metropolis_hastings_normal` y se guardan los resultados en una lista.
+for (j in seq_len(n_cadenas)) {
+  muestras_md[[j]] <- metropolis_hastings_normal(
+    n = n_muestras,
+    x = x_inicio,
+    p = py,
+    sigma = sigma
+  )
+}
+
+# Con esto descartamos las primeras mil muestras que aun "no convergen"
+df_muestras_md <- crear_df_muestras(muestras_md)
+
+
+
+# Grafica las 4 trazas
+graficar_trazas_md(df_muestras_md, ylab = "y", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+```
+
+```{r f8,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+set.seed(0398)
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_md$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+library(kableExtra)
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+# Imprimir la tabla usando kable con opciones de kableExtra
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(2, width = "3cm")
+```
+
+
+
+```{r f9,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
+set.seed(2198)
 # Copiando lo del profe:
 muestras <- metropolis_hastings_normal(
   n = 10000,
   x = 0,
   p = py ,
-  sigma = 0.8 #Estaría bueno agregar qué pasa con otros valores de sigma
+  sigma = 1.3
 )
 
-# PONER:
-# EL QUE ESTA EN EL TP 0.2, NO ES EL MEJOR QUE SE PODRÍA USAR
-
+# grafica la muestra de Y con una  propuesta de sigma = 1.3
 graficar_distribucion(muestras, grid_y, py(grid_y), xlab = "y", ylab = TeX("$f_Y(y)$"), color = "#44A699", color_l = "#44A699")
-# no se nota mucho porque son muchas muestras, pero presenta autocorrelacion
-# Con un sigma más grande, puede verse que hay menor autocorrelacion
-# (sigma = 0.8)
+```
+```{r f10,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
+# grafica la traza de la transformada
+graficar_traza(muestras, color = "#44A699", ylab = "y")
 ```
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
+
+```{r f11,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de X"}
 # Transformamos las muestras de Y a muestras de X:
 muestras_x <- exp(muestras)
 
-# "Sabemos el resultado" entonces comparamos lo que simulamos"
-# con lo que tiene que dar
+# histograma de la muestra objetivo
 graficar_distribucion(muestras_x, grid_x, grid_px , ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
 ```
 
-```{r}
-# En el ejercicio 2, no conocemos la azul
-# Ahí calculamos la empírica con la teórica
-
+```{r f12,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de X"}
+# Traza de la muestra objetivo
 graficar_traza(muestras_x, color = "#3b78b0")
 ```
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
-# Las muestras son las mismas, pero en escala logaritmica
-
 # Completamos el codigo:
 metropolis_hastings_log <- function(logp, x, n, sigma = NULL) {
   # Algortimo de Metropolis Hastings en escala logarítmica
@@ -619,11 +680,6 @@ metropolis_hastings_log <- function(logp, x, n, sigma = NULL) {
   #  n         Cantidad de muestras a obtener.                             |
   #  sigma     Matriz de varianzas y covarianzas para la distribución de   |
   #            propuesta. Por defecto, es NULL y usa la matriz identidad.  |
-  #  ------------------------------------------------------------------------
-  #
-  # Salida
-  #  ------------------------------------------------------------------------
-  #  muestras  Matriz con las muestras obtenidas.                          |
   #  ------------------------------------------------------------------------
   
   # Obtener dimensionalidad de la distribución objetivo a partir del punto inicial
@@ -660,7 +716,6 @@ metropolis_hastings_log <- function(logp, x, n, sigma = NULL) {
     )
     
     # Calcular log probabilidad de aceptación
-    # COMPLETAMOS
     # Es mas estable con sumas y restas
     log_alpha <- (
       (logp_propuesta - logp_actual) + (logq_actual - logq_propuesta)
@@ -690,10 +745,12 @@ metropolis_hastings_log <- function(logp, x, n, sigma = NULL) {
   
   return(muestras)
 }
+```
 
-# Se puede poner log = T, en los dnorm, etc para que lo haga automaticamente
-# con escala logaritmica
 
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+set.seed(2198)
+# Funcion en escala logaritmica
 logp_y <- function(y){
   # Equivalente a log(dgamma(x, shape = 3, rate = 2))
   # Pero es más estable:
@@ -708,61 +765,142 @@ muestralog <- metropolis_hastings_log(
   # Como usamos la normal multivariada, no usamos desvios o variancias
   # usamos la matriz de covariancias, pero en los elementos diagonales
   # tiene las variancias, no los desvíos, por eso se eleva al cuadrado
-  sigma = as.matrix(0.2^2)
+  sigma = as.matrix(1.3^2)
 )
-# Normal multivariada -> matriz de variancias y covariancias
-
-#graficar_distribucion(muestralog, grid_y, grid_p_y) #////////////////////////////////////////////////////////////////
-#graficar_traza(muestralog)                         #////////////////////////////////////////////////////////////////
- 
-# Muestras de X transformando la muestra de Y
-muestras_x <- exp(muestralog)
-#graficar_distribucion(muestras_x, grid_x, grid_px) #////////////////////////////////////////////////////////////////
-#graficar_traza(muestras_x)                         #////////////////////////////////////////////////////////////////            
-
-# Muestreamos usando transformacion de v.a. ES POR ESTO que volvemos a X
-# con la exponencial
-# usamos densidad en escala logarítmica(solo por eficiencia computacional)
-
-
-
-# Seguir el orden del enunciado sin remarcar las partes del tp
-
-
-
-
 ```
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-#/////////////////////////////////////////////////////////////
-#                             Parte 2
-#/////////////////////////////////////////////////////////////
-#juntamos el metodo M-H con estadistica bayesiana
-# Y_i ~ Normal(mu, sigma**2)
-# mu ~ Normal(0, 1**2)
-# sigma ~ Gamma(alpha = 2, beta = 2)
 
-#ITEM 4 
-#Pasos anteriore en la carpeta
+```{r f13,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
+graficar_distribucion(muestralog, grid_y, grid_p_y, xlab = "y", ylab = TeX("$f_Y(y)$"), color = "#44A699", color_l = "#44A699")
+```
+
+
+```{r f14,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
+graficar_traza(muestralog, color = "#44A699", ylab = "y")
+```
+
+
+```{r f15,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con σ = 1.3"}
+set.seed(0398)
+# Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
+muestras_md_log <- list()
+n_muestras <- 10000
+n_cadenas <- 4
+x_inicio <- 0
+sigma <- as.matrix(1.3^2)
+
+# Se llama a la función `metropolis_hastings_normal` y se guardan los resultados en una lista.
+for (j in seq_len(n_cadenas)) {
+  muestras_md_log[[j]] <- metropolis_hastings_log(
+    n = n_muestras,
+    x = x_inicio,
+    logp = logp_y,
+    sigma = sigma
+  )
+}
+
+# Con esto descartamos las primeras mil muestras que aun "no convergen"
+df_muestras_md_log <- crear_df_muestras(muestras_md_log)
+
+# Grafica las 4 trazas
+graficar_trazas_md(df_muestras_md_log, ylab = "y", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+```
+
+```{r f16,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_md_log$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+library(kableExtra)
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+# Imprimir la tabla usando kable con opciones de kableExtra
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(2, width = "3cm")
+```
+
+```{r f17,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de X"}
+# Muestras de X transformando la muestra de Y
+muestras_x <- exp(muestralog)
+graficar_distribucion(muestras_x, grid_x, grid_px, ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
+```
+
+
+```{r f18,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
+graficar_traza(muestras_x, color = "#3b78b0")                           
+```
+
+
+### Free practice: múltiples dimensiones {#Objetivo-2}
+
+En este escenario se le agrega que la distribución objetivo tiene múltiples dimensiones y debe ser obtenida mediante el uso de la regla de Bayes.
+
+Dado el siguiente modelo:
+
+$$Y_i \sim \text{Normal}(\mu, \sigma^2) \text{, con } i=1,...,N$$
+$$\mu \sim \text{Normal}(0, 1^2) $$
+$$\sigma \sim \text{Gamma}(\alpha = 2, \beta = 2)$$
+Una forma convencional de obtener el posterior no normalizado es usando la regla de bayes
+
+$$p(\boldsymbol{\theta} \text{ | } \boldsymbol{y} ) = \dfrac{p( \boldsymbol{y}  \text{ | } \boldsymbol{\theta}). p(\boldsymbol{\theta})}{p(\boldsymbol{y})} $$
+$$p(\mu, \ \sigma \text{ | } \boldsymbol{y} ) = \dfrac{p( \boldsymbol{y}  \text{ | } \mu, \ \sigma).p(\mu, \ \sigma)}{p(\boldsymbol{y})} \propto p( \boldsymbol{y}  \text{ | } \mu, \ \sigma).p(\mu, \ \sigma)$$
+$$\text{sabiendo que }\mu \text{ y } \sigma \text{ son independientes se tiene: } $$
+$$p(\mu, \ \sigma \text{ | } \boldsymbol{y} ) \propto p( \boldsymbol{y}  \text{ | } \mu, \ \sigma).p(\mu).p(\sigma)$$
+Un posible problema para esa deduccion es el dominio de $\boldsymbol{\theta} = \{ \mu,\ \sigma \}\ \implies \boldsymbol{\theta} \in \mathbb{R} \text{ x } \mathbb{R}^+$
+Esto se soluciona haciendo una transformacion al parametro acotado de la forma $\boldsymbol{\theta^*} = \{ \mu,\ \sigma^* \}\ \implies \boldsymbol{\theta^*} \in \mathbb{R}^2 \ \text{con }\sigma^*=log(\sigma)$
+
+```{r , echo=FALSE}
+# paso 1) transformar los parametros tal que su dominio sea Rp
+# paso 2) tener posterior no normalizado de theta* donde theta* =(mu, sigma*)
+#         sigma* = log(sigma)
+# paso 3) obtener el posterior no normalizado de theta* en escala logaritmica
+# paso 3.5) implemetar el paso 3 en R
+# paso 4) obtener muestras de theta*
+# paso 5) convertir las muestras de theta* en muestras de theta
+```
+
+
+$$P(\mu, \sigma^* \mid y) ~ P_y(y \mid \mu, \sigma^*)P_\mu(\mu)P_\sigma^*(\sigma^*)$$
+
+$$\text{Teniendo en cuando la transformacion de }\sigma^* \text{ tenemos:}$$
+$$P_\sigma^*(\sigma^*) = P_\sigma^*(g^1 (\sigma^*)) \left| \dfrac{d}{d\sigma^*} (g^1 (\sigma^*)) \right| \ = \ P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*) $$
+$$\left[ \sum_{i = 1}^{N} P_y(y_i \mid \mu,\exp(\sigma^*))\right]*P_\mu(\mu)*P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*)$$
+Implemente en R una función que permita calcular la densidad a posteriori en escala logarítmica, sin incluir la constante de normalización. Esta función tendrá 2 parámetros de entrada, uno para el vector de parámetros y otro para el vector de valores observados.
+
+
+
+```{r}
+# Función de densidad del posterior en escala logarítmica
 log_posterior <- function(params, y_vector){
-   #params tiene longitud 2
+   # "params" tiene longitud 2
    mu <- params[1]
    sigma_estrella <- params[2]
-   
+   # salida guarda la formula para obtener el posterior
    salida <-(
-     sum(dnorm(y_vector, mean = mu, sd = exp(sigma_estrella), log = T))
-     + dnorm(mu, mean = 0, sd = 1, log = T)
-     + dgamma(exp(sigma_estrella),shape = 2, rate = 2, log = T) #log(dgamma)
-     + sigma_estrella
+     sum(dnorm(y_vector, mean = mu, sd = exp(sigma_estrella), log = T)) # sum(logp(y_i|mu,exp(sigma*)))
+     + dnorm(mu, mean = 0, sd = 1, log = T)   # logp(mu)
+     + dgamma(exp(sigma_estrella),shape = 2, rate = 2, log = T) # logp(exp(sigma*))
+     + sigma_estrella # sigma estrella
    ) 
    return(salida)
 }
-
-#log-posterior no normalizado evaluado en un punto del espacio parametrico
-log_posterior(
-  params = c(0, log(2)),
-  y_vector = rnorm(10, mean = 0, sd = log(2))
-  )
 ```
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -803,6 +941,7 @@ graficar_distribucion(
   p_grid = 1,
   color = "green"
   )
+# es un histograma que representa la distribucion aposteriori marginal de mu
 
 #traceplot de mu
 plot_trace(muestras_theta_estrella[ ,1], color = "green")
@@ -818,97 +957,10 @@ graficar_distribucion(
 #Traceplot de sigma estrella
 plot_trace(muestras_theta_estrella[ ,2], color = "orange")
 ```
-
-### Free practice: múltiples dimensiones {#Objetivo-2}
-
-paso 1) transformar los parametros tal que su dominio sea R\^p paso 2)
-tener posterior no normalizado de $\theta^*$ donde
-$\theta^* = {\mu, \sigma^*}$ $\sigma^* = log(\sigma)$ paso 3) obtener el
-posterior no normalizado de theta\* en escala logaritmica paso 4)
-obtener muestras de theta *paso 5) convertir las muestras de theta* en
-muestras de theta
-
-$$(a)$$
-$$P(\mu, \sigma^* \mid y) ~ P_y(y \mid \mu, \sigma^*)P_\mu(\mu)P_\sigma^*(\sigma^*)$$
-$$(b)$$
-$$P_\sigma^*(\sigma^*) = P_\sigma^*(g^1 (\sigma^*))\mid d/d\sigma^* (g^1 (\sigma^*)) \mid$$
-
-$$= P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*) $$
-
-$$(a),(b)$$
-
-$$[\prod P_y(y_i \mid \mu,\exp(\sigma^*))]*P_\mu(\mu)*P_\sigma^*(exp(\sigma^*))*\exp(\sigma^*)$$
-
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-## Segunda parte
-
-# paso 1) transformar los parametros tal que su dominio sea Rp
-# paso 2) tener posterior no normalizado de theta* donde theta* =(mu, sigma*)
-#         sigma* = log(sigma)
-# paso 3) obtener el posterior no normalizado de theta* en escala logaritmica
-# paso 3.5) implemetar el paso 3 en R
-# paso 4) obtener muestras de theta*
-# paso 5) convertir las muestras de theta* en muestras de theta
-
-
-log_posterior <- function(params, y_vector){
-  
-  #params tiene longitud 2
-  mu <- params[1]
-  sigma_estrella <- params[2]
-  
-  salida <- (
-    sum(dnorm(y_vector, mean = mu, sd = exp(sigma_estrella), log = TRUE))
-    + dnorm(mu, mean = 0, sd = 1, log =TRUE)
-    + dgamma(exp(sigma_estrella), shape = 2, rate = 2, log = TRUE)
-    + sigma_estrella
-  )
-  
-  return(salida)
-}
-
-# log-posterior no normalizado
-log_posterior(params = c(0, log(2)),
-              y_vector = rnorm(10, mean = 0, sd = log(2))
-              )
-
-y_datos <- readLines("https://raw.githubusercontent.com/ee-unr/estadistica-bayesiana/refs/heads/main/datos/precalentamiento-mh.txt")
-
-y_datos <- as.numeric(y_datos)
-
-logp <- partial(log_posterior, y = y_datos)
-
-
-# Dan el mismo resultado
-log_posterior(c(0, log(2)), y_datos)
-logp(c(0, log(2)))
-
-Sigma <- diag(2)*(0.05^2)
-
-# Obtener muestras
-muestras_theta_estrella <- metropolis_hastings_log(
-  logp = logp,
-  x = c(0.5, log(1.5)),
-  n = 1000,
-  sigma = Sigma
-)
-
-
-# traceplot de mu
-plot_trace(muestras_theta_estrella[,1])
-
-# traceplot de sigma estrella
-plot_trace(muestras_theta_estrella[,2])
-
-# Histograma a partir de las muestras de mu
-graficar_distribucion(muestras_theta_estrella[,1], x_grid = 1, p_grid = 1)
-
-# es un histograma que representa la distribucion aposteriori marginal de mu
-
-
-```
-
 Son muestras obtenidas a partir d ela distribucion log, cuando aun no
 habian convergido
+
+
+
 
 ### El Gran Prix: ¿qué le decimos a Brian? {#Objetivo-3}
