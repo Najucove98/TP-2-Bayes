@@ -178,6 +178,12 @@ $$\sigma_O^2, \sigma_C^2 \sim Gamma(\alpha = 6, \beta = 2)$$
 library(ggplot2)
 library(purrr)
 library(latex2exp)
+library(grid)
+library(gridExtra)
+library(kableExtra)
+library(tidyverse)
+library(knitr)
+
 
 # Funciones estandar para graficar
 graficar_distribucion <- function(x_muestras, x_grid, p_grid, xlab = "x" ,ylab = "y", color = "grey60", color_l = "#3b78b0") {
@@ -531,8 +537,6 @@ graficar_trazas_md(df_muestras_md, ylab = "y", colors = c("#AEC6CF", "#F08080", 
 ```
 
 ```{r f6,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
-library(knitr)
-library(kableExtra)
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md$valor, ncol = n_cadenas, byrow = FALSE)
@@ -544,7 +548,6 @@ R_hat <- calcular_R(muestras_matriz)
 n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
 n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
 
-library(kableExtra)
 # Crear un data frame para la tabla
 tabla_diagnostico <- data.frame(
   Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
@@ -616,7 +619,7 @@ R_hat <- calcular_R(muestras_matriz)
 n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
 n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
 
-library(kableExtra)
+
 # Crear un data frame para la tabla
 tabla_diagnostico <- data.frame(
   Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
@@ -820,7 +823,6 @@ R_hat <- calcular_R(muestras_matriz)
 n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
 n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
 
-library(kableExtra)
 # Crear un data frame para la tabla
 tabla_diagnostico <- data.frame(
   Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
@@ -918,12 +920,11 @@ log_posterior <- function(params, y_vector) {
 ```
 
 
-Utilice los valores de $y_i$ en el archivo precalentamiento-mh.txt y la función metropolis_hastings_log() para obtener muestras del posterior de $\boldsymbol{\theta} = \{\mu,\ \sigma \} $. Corra dos cadenas de Markov. Calcule el tamaño efectivo de muestra y evalúe mezcla y convergencia de manera gráfica.
+Utilice los valores de $y_i$ en el archivo precalentamiento-mh.txt y la función metropolis_hastings_log() para obtener muestras del posterior de $\boldsymbol{\theta} = \{\mu,\ \sigma \}$. Corra dos cadenas de Markov. Calcule el tamaño efectivo de muestra y evalúe mezcla y convergencia de manera gráfica.
 
 
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
-library(purrr)
 
 # Utilizamos la muestra provista
 y_datos <- as.numeric(readLines(
@@ -964,7 +965,7 @@ graficar_distribucion(
 #traceplot de mu
 plot_trace(muestras_theta_estrella[ ,1], color = "green", ylab = "mu")
 ```
-```{r f15,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r f15a,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas del vector de parametros
 muestras_md_log <- list()
@@ -1014,7 +1015,6 @@ R_hat <- calcular_R(muestras_matriz)
 n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
 n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
 
-library(kableExtra)
 # Crear un data frame para la tabla
 tabla_diagnostico <- data.frame(
   Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
@@ -1079,7 +1079,6 @@ R_hat <- calcular_R(muestras_matriz)
 n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
 n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
 
-library(kableExtra)
 # Crear un data frame para la tabla
 tabla_diagnostico <- data.frame(
   Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
@@ -1135,7 +1134,6 @@ R_hat <- calcular_R(muestras_matriz)
 n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
 n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
 
-library(kableExtra)
 # Crear un data frame para la tabla
 tabla_diagnostico <- data.frame(
   Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
@@ -1203,7 +1201,6 @@ R_hat <- calcular_R(muestras_matriz)
 n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
 n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
 
-library(kableExtra)
 # Crear un data frame para la tabla
 tabla_diagnostico <- data.frame(
   Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
