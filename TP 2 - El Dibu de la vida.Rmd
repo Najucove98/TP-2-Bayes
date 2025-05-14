@@ -879,25 +879,28 @@ Utilice los valores de $y_i$ en el archivo precalentamiento-mh.txt y la función
 
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
-
 # Utilizamos la muestra provista
 y_datos <- as.numeric(readLines(
   "https://raw.githubusercontent.com/ee-unr/estadistica-bayesiana/refs/heads/main/datos/precalentamiento-mh.txt"))
 
 # Se utiliza la funcion "partial" que permite pre-llenar argumentos
 logp <- partial(log_posterior, y_vector = y_datos)
+```
 
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+set.seed(0398)
 # matriz de varianza y covarianza
-sigma <- diag(2)* (0.05**2) # Propuesto en clase
+sigma <- matrix(c(0.12^2, 0, 0, 0.13^2), nrow = 2)  # Propuesto en clase 0.05^2
+
 
 # Obtener muestras
 muestras_theta_estrella <- metropolis_hastings_log(
   logp = logp,
-  x = c(0.5, log(1.5)), # Dos puntos iniciales
+  x = c(1, log(0.8)), # propuesto en clase 0 y log(1.5)
   n = 10000,
   sigma = sigma
 )
-
 ```
 
 
@@ -910,22 +913,19 @@ muestras_theta_estrella <- metropolis_hastings_log(
 
 
 ```{r 12,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
-# BORRAR
 #histograma que muestra la dist a posteriori marginal de mu
 graficar_distribucion(
   muestras_theta_estrella[ ,1], #[1000:10000]
   x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 1,
   color = "green", #cambiar gama de colores para los parametros mu y sigma
-  xlab = "mu",
+  xlab = "μ",
   ylab = NULL)
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
 
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
-# BORRAR
-
 #traceplot de mu
 plot_trace(muestras_theta_estrella[ ,1], color = "green", ylab = "mu")
 ```
@@ -937,13 +937,13 @@ muestras_md_log <- list()
 n_muestras <- 10000
 n_cadenas <- 4
 x_inicio <- 0
-sigma <- diag(2)* (0.05**2)
+sigma <- matrix(c(0.12^2, 0, 0, 0.13^2), nrow = 2)
 
 # Se llama a la función `metropolis_hastings_normal` y se guardan los resultados en una lista.
 for (j in seq_len(n_cadenas)) {
   muestras_md_log[[j]] <- metropolis_hastings_log(
     n = n_muestras,
-    x = c(0.5, log(1.5)),  # Dos puntos iniciales
+    x = c(1, log(0.8)),  # Dos puntos iniciales
     logp = logp,
     sigma = sigma # matriz de 2x2 diagonal
   )
@@ -959,9 +959,6 @@ df_muestras_mu <- df_muestras_md_log |> filter(paso <= 10000)
 #dataframe con las muestras de sigma 
 df_muestras_sigma <- df_muestras_md_log |> filter(paso > 10000)
 
-```
-```{r}
-df_muestras_mu_filter <- df_muestras_md_log |> filter(paso <= 10000)
 ```
 
 
@@ -1005,69 +1002,9 @@ kable(tabla_diagnostico,
   column_spec(2, width = "3cm")
 ```
 
-Nueva propuesta para mu
-
-```{r , echo=FALSE, warning=FALSE, message=FALSE}
-set.seed(0398)
-# Creamos una lista para guardar 4 cadenas del vector de parametros
-muestras_md_log2 <- list()
-n_muestras <- 10000
-n_cadenas <- 4
-x_inicio <- 0
-sigma <- diag(2)* (0.12**2)
-
-# Se llama a la función `metropolis_hastings_normal` y se guardan los resultados en una lista.
-for (j in seq_len(n_cadenas)) {
-  muestras_md_log2[[j]] <- metropolis_hastings_log(
-    n = n_muestras,
-    x = c(1, log(1.5)),  # Dos puntos iniciales
-    logp = logp,
-    sigma = sigma # matriz de 2x2 diagonal
-  )
-}
-
-# creamos un data frame para poder graficar
-df_muestras_md_log2 <- crear_df_muestras(muestras_md_log2)
-
-#dataframe con las muestras de mu
-df_muestras_mu2 <- df_muestras_md_log2 |> filter(paso <= 10000)
-
-```
-
-```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
-# Grafica las 4 trazas
-graficar_trazas_md(df_muestras_mu2, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
-```
+Nueva propuesta para mu contemplando que se uso una propuesta de una matriz diagonal de 0.05^2 y un inicio de 0.5 y log(1.5)
 
 
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
-# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
-muestras_matriz <- matrix(df_muestras_mu2$valor, ncol = n_cadenas, byrow = FALSE)
-
-
-# Calculamos las medidas de diagnostico
-
-R_hat <- calcular_R(muestras_matriz)
-n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
-n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
-
-# Crear un data frame para la tabla
-tabla_diagnostico <- data.frame(
-  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
-  Valor = c(R_hat, n_effs, n_eff)
-)
-
-# Imprimir la tabla usando kable con opciones de kableExtra
-kable(tabla_diagnostico,
-      col.names = c("Métrica", "Valor"),
-      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
-      escape = FALSE,
-      booktabs = TRUE,
-      position = "H",
-      caption.placement = "bottom") %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
-  column_spec(2, width = "3cm")
-```
 
 
 Mejores resultados con un desvio de 0.12 y mismo valor inicial
@@ -1126,72 +1063,6 @@ kable(tabla_diagnostico,
   column_spec(2, width = "3cm")
 ```
 NUEVA PROPUESTA
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-set.seed(0398)
-# Creamos una lista para guardar 4 cadenas del vector de parametros
-muestras_md_log3 <- list()
-n_muestras <- 10000
-n_cadenas <- 4
-x_inicio <- 0
-sigma <- diag(2)* (0.13**2) #anterior 0.12 <- 5300 muestras efectivas 1.5 <- 5350
-
-# Se llama a la función `metropolis_hastings_normal` y se guardan los resultados en una lista.
-for (j in seq_len(n_cadenas)) {
-  muestras_md_log3[[j]] <- metropolis_hastings_log(
-    n = n_muestras,
-    x = c(0.5, log(0.8)),  # Dos puntos iniciales
-    logp = logp,
-    sigma = sigma # matriz de 2x2 diagonal
-  )
-}
-
-# creamos un data frame para poder graficar
-df_muestras_md_log2 <- crear_df_muestras(muestras_md_log3)
-
-#dataframe con las muestras de sigma
-df_muestras_sigma2 <- df_muestras_md_log2[c(10001:20000,30001:40000,50001:60000,70001:80000), ]
-
-df_muestras_sigma_trp2 <- df_muestras_sigma2
-df_muestras_sigma_trp2[ ,3] <- exp(df_muestras_sigma2[ ,3])
-
-```
-
-```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
-# Grafica las 4 trazas
-graficar_trazas_md(df_muestras_sigma_trp2, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
-```
-
-
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
-set.seed(0398)
-# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
-muestras_matriz <- matrix(df_muestras_sigma_trp2$valor, ncol = n_cadenas, byrow = FALSE)
-
-
-# Calculamos las medidas de diagnostico
-
-R_hat <- calcular_R(muestras_matriz)
-n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
-n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
-
-# Crear un data frame para la tabla
-tabla_diagnostico <- data.frame(
-  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
-  Valor = c(R_hat, n_effs, n_eff)
-)
-
-# Imprimir la tabla usando kable con opciones de kableExtra
-kable(tabla_diagnostico,
-      col.names = c("Métrica", "Valor"),
-      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
-      escape = FALSE,
-      booktabs = TRUE,
-      position = "H",
-      caption.placement = "bottom") %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
-  column_spec(2, width = "3cm")
-```
 
 la nueva propuesta de un desvio de 0.13 y valor inicial de log(0.75) parece ser una mejor opcion para obtener muestras de sigma
 
@@ -1291,21 +1162,6 @@ plot_oz_box <-ggplot(datos_oz, aes(y = gain))+
 ```
 
 
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 6, fig.height = 7, fig.cap="Histograma de la muestras de X"}
-titulo_fila1 <- textGrob("Histograma y Boxplot para Control", gp = gpar(fontsize = 14, fontface = "bold"))
-titulo_fila2 <- textGrob("Histograma y Boxplot para Ozone", gp = gpar(fontsize = 14, fontface = "bold"))
-
-# Armar el layout con títulos por fila
-grid.arrange(
-  titulo_fila1,           # título para fila 1
-  arrangeGrob(plot_con_hist, plot_con_box, ncol = 2),  # gráficos fila 1
-  titulo_fila2,           # título para fila 2
-  arrangeGrob(plot_oz_hist, plot_oz_box, ncol = 2),  # gráficos fila 2
-  ncol = 1, heights = c(0.4, 1, 0.4, 1)  # ajusta altura de títulos
-)
-
-```
-
 ```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 7, fig.height = 3.5, fig.cap="Histograma y Boxplot para Control"}
 grid.arrange(plot_con_hist, plot_con_box, ncol = 2)
 
@@ -1353,7 +1209,7 @@ Dadas una misma media y varianza, tanto la distribución normal como la t de Stu
 * Su forma con colas pesadas permitió capturar mejor la variabilidad e incertidumbre en situaciones donde los datos fueron escasos o ruidosos, protegiendo contra la subestimación del error.
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # setear datos
 prueba <- data.frame(
   valores = seq(-5, 5, length.out = 1000))
@@ -1366,12 +1222,14 @@ scaled_t_density <- function(x, df, mean = 0, sd = 1) {
 }
 
 prueba$den_t <- scaled_t_density(prueba$valores, 3)
+```
 
 
+```{r, warning=FALSE, message=FALSE}
 # Graficar la curva de densidad
 ggplot(prueba, aes(x = valores, y = den_norm)) +
   geom_line(aes(y = den_norm, color = "Normal")) +
-  geom_line(aes(y = den_t, color = "t-Student (df = 3)")) +
+  geom_line(aes(y = den_t, color = "T-Student (df = 3)")) +
   labs(
     title = "Comparación de densidades: Normal vs t-Student (df=3)",
     x = "valores", y = "Densidad", color = "Distribución"
@@ -1386,6 +1244,7 @@ aca iria una introduccion y la formula del posterior para cada modelo
 
 
 ```{r}
+#Distinta por grupo
 # Función de densidad posterior en escala logarítmica (sin normalizar)
 log_posterior_tarkington <- function(params, y_vector, normal = TRUE) {
   # 'params' tiene longitud 4
