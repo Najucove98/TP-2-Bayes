@@ -77,19 +77,20 @@ un período de siete días, se registró la diferencia en el peso de cada
 animal, generando un conjunto de datos que permite analizar
 comparativamente el efecto de la exposición al ozono.
 
-El presente informe se centra en el análisis de estos datos utilizando
-la metodología de la Estadística Bayesiana. En particular, se explorarán
+
+Con el objetivo de dar respuesta a la inquietud de Tarkington, abordaremos 
+el problema mediante el uso modelos bayesianos. En particular, consideramos
 dos modelos probabilísticos con sutiles diferencias en su formulación.
-El primer modelo, basado en la distribución normal, con medias
-$(\mu_O,\ \mu_C)$ y varianzas $(\sigma_O^2,\ \sigma_C^2)$ específicas,
-representa un enfoque clásico y ampliamente utilizado en el análisis
-estadístico. El segundo modelo, en contraste, emplea la distribución T
-de Student con grados de libertad $(v = 3)$ para capturar posibles colas
-más pesadas en la distribución de los datos. La comparación de los
-resultados obtenidos bajo ambos modelos permitirá no solo responder a la
-pregunta de investigación planteada por Tarkington, sino también
-profundizar en la sensibilidad de las conclusiones a las asunciones
-distribucionales realizadas.
+
+El primer modelo propuesto para modelizar el cambio en el peso de las ratas 
+en cada grupo se modeliza con una distribución normal, permitiendo medias
+$(\mu_O,\ \mu_C)$ y varianzas $(\sigma_O^2,\ \sigma_C^2)$ específicas para 
+cada grupo.
+
+El segundo modelo propuesto, en contraste, emplea la distribución T
+de Student con 3 grados de libertad $(v = 3)$, esta alternativa
+resulta especialmente útil cuando se desea robustez frente a posibles
+valores atípicos o colas pesadas en la distribución de los datos.
 
 Más allá de la comparación de estos modelos y la respuesta a la pregunta
 de investigación sobre el efecto del ozono, el objetivo principal del
@@ -109,7 +110,7 @@ la verosimilitud de los datos bajo el nuevo valor de los parámetros y la
 verosimilitud bajo el valor actual, multiplicada por la razón de las
 probabilidades a priori de los dos valores.
 
-$\alpha = \min \left\{ 1, \frac{p(y')q(y^{(t)} | y')}{p(y^{(t)})q(y' | y^{(t)})} \right\}$
+$$\alpha = \min \left\{ 1, \frac{p(y')q(y^{(t)} | y')}{p(y^{(t)})q(y' | y^{(t)})} \right\}$$
 
 Si el valor $propuesto$ tiene una mayor probabilidad a posteriori (o una
 probabilidad no mucho menor), es más probable que sea aceptado. Si es
@@ -121,46 +122,6 @@ intervalos de credibilidad, etc. La clave del algoritmo radica en la
 elección adecuada de la distribución de propuesta para asegurar una
 exploración eficiente del espacio de parámetros y una rápida
 convergencia a la distribución objetivo.
-
-\newpage
-
-# Modelización Estadística
-
-Para dar respuesta a la pregunta planteada por Tarkington respecto al
-efecto del ozono en el crecimiento de ratas, recurrimos a modelos
-bayesianos, se consideraron dos modelos probabilísticos similares pero
-con diferencias sutiles en su estructura. Esto nos permite no solo
-evaluar el efecto del ozono sobre el crecimiento de las ratas, sino
-también explorar cómo distintos supuestos sobre la distribución de los
-datos pueden influir en los resultados inferenciales.
-
-## Modelo Normal
-
-El primer enfoque se basa en el tradicional modelo normal, ampliamente
-utilizado en el análisis estadístico. En este modelo, se asume que el
-cambio de peso en las ratas sigue una distribución normal, con medias y
-varianzas específicas para cada grupo (grupo expuesto al ozono y grupo
-control).
-
-$$Y_{O,i} \sim Normal(\mu_O, \sigma_O^2) \quad i = 1,...,N_O$$
-$$Y_{C,j} \sim Normal(\mu_C, \sigma_C^2) \quad j = 1,...,N_C$$
-$$\mu_O, \mu_C \sim Normal(0, 5^2)$$
-$$\sigma_O^2, \sigma_C^2 \sim Gamma(\alpha = 6, \beta = 2)$$
-
-donde $Y_{O,i}$ representa el cambio de peso en la i-ésima rata del
-grupo expuesto al ozono, y $Y_{C,j}$ representa el cambio
-correspondiente en la j-ésima rata del grupo control.
-
-## Modelo T de Student
-
-El segundo modelo la distribución de los datos se modela mediante una
-distribución T de Student con 3 grados de libertad. Esta alternativa
-resulta especialmente útil cuando se desea robustez frente a posibles
-valores atípicos o colas pesadas en la distribución de los datos.
-$$Y_{O,i} \sim Studen-T(\mu_O, \sigma_O^2) \quad i = 1,...,N_O$$
-$$Y_{C,j} \sim Studen-T(\mu_C, \sigma_C^2) \quad j = 1,...,N_C$$
-$$\mu_O, \mu_C \sim Normal(0, 5^2)$$
-$$\sigma_O^2, \sigma_C^2 \sim Gamma(\alpha = 6, \beta = 2)$$
 
 \newpage
 
@@ -180,10 +141,9 @@ library(purrr)
 library(latex2exp)
 library(grid)
 library(gridExtra)
-library(kableExtra)
 library(tidyverse)
 library(knitr)
-
+library(kableExtra)
 
 # Funciones estandar para graficar
 graficar_distribucion <- function(x_muestras, x_grid, p_grid, xlab = "x" ,ylab = "y", color = "grey60", color_l = "#3b78b0") {
@@ -322,20 +282,21 @@ crear_df_muestras <- function(muestras) {
 
 ```
 
-# Metropolis-Hastings en espacios paramétricos acotados {#Objetivo-1}
+# Primeros pasos en Metropolis-Hastings {#Objetivo-1}
 
 El algoritmo de Metropolis-Hastings, implementado en escala logarítmica,
 constituye una herramienta robusta para obtener muestras del
 $posterior$. Sin embargo, su aplicación directa a modelos complejos
 puede ser desafiante sin una sólida comprensión de sus fundamentos y
 técnicas asociadas. Como preparación para la aplicación del algoritmo de
-Metropolis-Hastings a los modelos bayesianos propuestos en este trabajo,
-se llevó a cabo una exploración inicial del algoritmo en escenarios más
-simples. Se comenzó con un escenario donde $X$ es la variable aleatoria
+Metropolis-Hastings a modelos bayesianos más complejos, se llevó a cabo 
+una exploración inicial del algoritmo en escenarios más simples. 
+
+Se comenzó con un escenario donde $X$ es la variable aleatoria
 de interés, cuya función de densidad corresponde a una distribución
 Gamma con parámetros $\alpha = 3$ y $\beta = 2$ ($X \sim Gamma(3,2)$).
 
-```{r f1,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Distribucion de densidad de X" }
+```{r f1,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Distribucion de densidad de X" }
 set.seed(0398)
 # Cremos una grilla de valores de x:
 # X está en los reales positivos
@@ -361,25 +322,27 @@ ggplot(data.frame(x = grid_x, y = grid_px), aes(x = x, y = y)) +
 La Figura @ref(fig:f1) ilustra la forma de la distribución de densidad
 de la variable aleatoria $X$.
 
-A continuación, se propone encontrar la función de densidad de una nueva
+A continuación, se propuso encontrar la función de densidad de una nueva
 variable aleatoria $Y=log(X)$. Para ello, recurrimos a la técnica de
 transformación de variables de la siguiente manera:
 
 $\text{Sea }Y = g(X) = log(x) \text{, donde la función } g:(0,\ +\infty) \rightarrow \mathbb{R}.$
 
-$\text{Hallamos la función inversa: }g^{-1}(X) = e^{X} \text{, con dominio } g^{-1}: \mathbb{R} \rightarrow (0,\ +\infty).$
+$\text{Su función inversa es: }g^{-1}(X) = e^{X} \text{, con dominio } g^{-1}: \mathbb{R} \rightarrow (0,\ +\infty).$
 
 Luego, la función de densidad de $Y$, $P_Y(y)$, se obtiene a partir de
 la función de densidad $X$, $P_X(x)$, utilizando la siguiente relación:
-
+\vspace{0cm}
 $$P_Y(y) = P_X(g^{-1}(y)) \left| \frac{d}{dy} g^{-1}(y) \right|$$
 $\text{Sustituyendo } g^{-1}(y) = e^{y}, \text{ obtenemos:}$
-
+\vspace{0cm}
 $$P_Y(y) = P_X(e^{y}) \left| \frac{d}{dy} e^{y} \right| = P_X(e^{y})\left| e^{y} \right|$$
+
+\newpage
 
 $\text{De esta forma podemos graficar la función de densidad de } Y = log(X)$
 
-```{r f2,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Distribucion de densidad de Y = log(X)"}
+```{r f2,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Distribucion de densidad de Y = log(X)"}
 set.seed(0398)
 # Creamos una funcion:
 py <- function(y){
@@ -417,15 +380,16 @@ generar propuestas de nuevos valores en el algoritmo de
 Metropolis-Hastings, su aplicación en espacios paramétricos acotados
 puede resultar ineficiente debido al incremento en la tasa de rechazo
 generado por propuestas fuera del dominio, lo que ralentiza la
-exploración del espacio paramétrico y la convergencia del algoritmo. Por
-lo que se optó por realizar el proceso de muestreo sobre la variable
+exploración del espacio paramétrico y la convergencia del algoritmo.
+
+Porlo que se optó por realizar el proceso de muestreo sobre la variable
 transformada $Y=log(X)$, utilizando una distribución normal como función
 de propuesta, con una desviación estándar $\sigma = 0.2$ y centrada en
 un valor inicial de $\mu = 0$. Esta estrategia de trabajar en un espacio
 no acotado permitió seguir utilizando las propiedades convenientes de la
 distribución normal como propuesta.
 
-```{r f3,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
+```{r f3,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de Y = log(X)"}
 set.seed(0398)
 # Sacamos muestras:
 # Hacemos un nuevo grid_py:
@@ -451,19 +415,21 @@ graficar_distribucion(muestra,
                       color_l = "#44A699")
 ```
 
-```{r f4,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
+```{r f4,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de Y = log(X)"}
 graficar_traza(muestra, ylab = "y", color = "#44A699" )
 ```
 
-Tras la implementación del método, y tal como se evidencia en la Figura
+Luego de la aplicación del método, como se puede observar en la Figura
 @ref(fig:f3), las muestras obtenidas presentan una semejanza notable con
-la distribución objetivo. Además, la Figura @ref(fig:f4) (trace plot)
-revela una baja autocorrelación en las cadenas de Markov generadas.Esto
-sugiere un buen ajuste del algoritmo de Metropolis-Hastings, resultado
-de su aplicación sobre la variable aleatoria Y, cuyo dominio resultó
-apropiado para la distribución de propuesta utilizada. Para una
-evaluación más exhaustiva de la calidad del ajuste del método
-implementado, se calcularon las siguientes medidas de diagnóstico.
+la distribución objetivo. Además como se puede observar en la Figura 
+@ref(fig:f4) (trace plot) revela una baja autocorrelación en las cadenas 
+de Markov generadas. Esto sugiere un buen ajuste del algoritmo de 
+Metropolis-Hastings, resultado de su aplicación sobre la variable aleatoria Y, 
+cuyo dominio resultó apropiado para la distribución de propuesta utilizada.
+
+Para una evaluación más exhaustiva de la calidad del ajuste del método 
+implementado, se calcularon las medidas de diagnóstico sobre la distribución 
+propuesta utilizada para generar la muestra.
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -505,7 +471,7 @@ calcular_n_eff <- function(muestras) {
 
 ```
 
-```{r f5,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con σ = 0.2"}
+```{r f5,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 0.2"}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
 muestras_md <- list()
@@ -536,7 +502,10 @@ graficar_trazas_md(df_muestras_md, ylab = "y", colors = c("#AEC6CF", "#F08080", 
 
 ```
 
-```{r f6,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+
+
+
+```{r f6,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md$valor, ncol = n_cadenas, byrow = FALSE)
@@ -565,19 +534,10 @@ kable(tabla_diagnostico,
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   column_spec(2, width = "3cm")
 
-#En el traceplot, las cadenas se mueven lentamente, lo que indica una alta autocorrelación. 
-#Además, no se mezclan y tampoco parecen converger a ninguna distribución objetivo. 
-#El valor de es considerablemente mayor a 1, lo que también señala falta de convergencia y
-#resulta consistente con lo observado en el traceplot. Además, el tamaño efectivo de muestra 
-#en cada cadena es muy bajo, y en consecuencia, el tamaño efectivo de muestra total también 
-#lo es, lo cual es coherente con cadenas que presentan una autocorrelación muy alta.
-
-#Así, se concluye que no se pueden utilizar las muestras para realizar inferencia. 
-#Decidimos incrementar el desvío estándar de la distribución de propuesta.
 ```
 
 
-```{r f7,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con σ = 1.3"}
+```{r f7,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con σ = 1.3"}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
 muestras_md <- list()
@@ -607,7 +567,7 @@ traceplot2 <- graficar_trazas_md(df_muestras_md, ylab = "y", colors = c("#87CEEB
 traceplot2
 ```
 
-```{r f8,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+```{r f8,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md$valor, ncol = n_cadenas, byrow = FALSE)
@@ -641,7 +601,7 @@ kable(tabla_diagnostico,
 
 
 
-```{r f9,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
+```{r f9,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
 set.seed(2198)
 # Copiando lo del profe:
 muestras <- metropolis_hastings_normal(
@@ -660,7 +620,7 @@ graficar_traza(muestras, color = "#44A699", ylab = "y")
 ```
 
 
-```{r f11,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de X"}
+```{r f11,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de X"}
 # Transformamos las muestras de Y a muestras de X:
 muestras_x <- exp(muestras)
 
@@ -668,7 +628,7 @@ muestras_x <- exp(muestras)
 graficar_distribucion(muestras_x, grid_x, grid_px , ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
 ```
 
-```{r f12,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de X"}
+```{r f12,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de X"}
 # Traza de la muestra objetivo
 graficar_traza(muestras_x, color = "#3b78b0")
 ```
@@ -776,17 +736,17 @@ muestralog <- metropolis_hastings_log(
 ```
 
 
-```{r f13,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
+```{r f13,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
 graficar_distribucion(muestralog, grid_y, grid_p_y, xlab = "y", ylab = TeX("$f_Y(y)$"), color = "#44A699", color_l = "#44A699")
 ```
 
 
-```{r f14,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
+```{r f14,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
 graficar_traza(muestralog, color = "#44A699", ylab = "y")
 ```
 
 
-```{r f15,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r f15,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
 muestras_md_log <- list()
@@ -812,7 +772,7 @@ df_muestras_md_log <- crear_df_muestras(muestras_md_log)
 graficar_trazas_md(df_muestras_md_log, ylab = "y", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
-```{r f16,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+```{r f16,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md_log$valor, ncol = n_cadenas, byrow = FALSE)
 
@@ -841,14 +801,14 @@ kable(tabla_diagnostico,
   column_spec(2, width = "3cm")
 ```
 
-```{r f17,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Histograma de la muestras de X"}
+```{r f17,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de X"}
 # Muestras de X transformando la muestra de Y
 muestras_x <- exp(muestralog)
 graficar_distribucion(muestras_x, grid_x, grid_px, ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
 ```
 
 
-```{r f18,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
+```{r f18,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
 graficar_traza(muestras_x, color = "#3b78b0")                           
 ```
 
@@ -944,11 +904,10 @@ muestras_theta_estrella <- metropolis_hastings_log(
   sigma = sigma
 )
 
-# dim(muestras_theta_estrella) son 10000 muestras para cada parametro del vector theta
 ```
 
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
+```{r ,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
 #histograma que muestra la dist a posteriori marginal de mu
 graficar_distribucion(
   muestras_theta_estrella[ ,1], #[1000:10000]
@@ -961,10 +920,11 @@ graficar_distribucion(
 ```
 
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 #traceplot de mu
 plot_trace(muestras_theta_estrella[ ,1], color = "green", ylab = "mu")
 ```
+
 ```{r f15a,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas del vector de parametros
@@ -997,13 +957,13 @@ df_muestras_sigma <- df_muestras_md_log[c(10001:20000,30001:40000,50001:60000,70
 ```
 
 
-```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 # Grafica las 4 trazas
 graficar_trazas_md(df_muestras_mu, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
 
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_mu$valor, ncol = n_cadenas, byrow = FALSE)
@@ -1035,7 +995,7 @@ kable(tabla_diagnostico,
 
 Nueva propuesta para mu
 
-```{r}
+```{r , echo=FALSE, warning=FALSE, message=FALSE}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas del vector de parametros
 muestras_md_log2 <- list()
@@ -1048,7 +1008,7 @@ sigma <- diag(2)* (0.12**2)
 for (j in seq_len(n_cadenas)) {
   muestras_md_log2[[j]] <- metropolis_hastings_log(
     n = n_muestras,
-    x = c(0.5, log(1.5)),  # Dos puntos iniciales
+    x = c(1, log(1.5)),  # Dos puntos iniciales
     logp = logp,
     sigma = sigma # matriz de 2x2 diagonal
   )
@@ -1062,13 +1022,13 @@ df_muestras_mu2 <- df_muestras_md_log2[c(1:10000,20001:30000,40001:50000,60001:7
 
 ```
 
-```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 # Grafica las 4 trazas
 graficar_trazas_md(df_muestras_mu2, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
 
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_mu2$valor, ncol = n_cadenas, byrow = FALSE)
 
@@ -1100,7 +1060,7 @@ kable(tabla_diagnostico,
 
 Mejores resultados con un desvio de 0.12 y mismo valor inicial
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
+```{r ,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
 #histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
 graficar_distribucion(
   exp(muestras_theta_estrella[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
@@ -1112,17 +1072,19 @@ graficar_distribucion(
 ```
 
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 #Traceplot de sigma estrella
 plot_trace(exp(muestras_theta_estrella[ ,2]), color = "orange", ylab = "sigma")
 ```
-```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 # Grafica las 4 trazas
 df_muestras_sigma_trp <- df_muestras_sigma
 df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
 graficar_trazas_md(df_muestras_sigma_trp, ylab = "sigma", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_sigma_trp$valor, ncol = n_cadenas, byrow = FALSE)
@@ -1153,7 +1115,7 @@ kable(tabla_diagnostico,
 ```
 NUEVA PROPUESTA
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas del vector de parametros
 muestras_md_log3 <- list()
@@ -1166,7 +1128,7 @@ sigma <- diag(2)* (0.13**2) #anterior 0.12 <- 5300 muestras efectivas 1.5 <- 535
 for (j in seq_len(n_cadenas)) {
   muestras_md_log3[[j]] <- metropolis_hastings_log(
     n = n_muestras,
-    x = c(0.5, log(0.75)),  # Dos puntos iniciales
+    x = c(0.5, log(0.8)),  # Dos puntos iniciales
     logp = logp,
     sigma = sigma # matriz de 2x2 diagonal
   )
@@ -1183,13 +1145,13 @@ df_muestras_sigma_trp2[ ,3] <- exp(df_muestras_sigma2[ ,3])
 
 ```
 
-```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 # Grafica las 4 trazas
 graficar_trazas_md(df_muestras_sigma_trp2, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
 
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5}
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_sigma_trp2$valor, ncol = n_cadenas, byrow = FALSE)
@@ -1234,10 +1196,7 @@ habian convergido
 
 # item 6
 
-```{r}
-#item 6
-
-
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
 datos <- read.csv("tarkington.csv")
 
 # Datos de control
@@ -1247,11 +1206,14 @@ datos_control <- datos %>%
 
 # Crear un data frame para la tabla
 tabla_medidas_control <- data.frame(
-  Medida = c("$Media$","$Mediana$", "$Desvio estandar$", "$Minimo$", "$Maximo$" ),
+  Medida = c("$Media$","$Mediana$", "$Desvio$  $estandar$", "$Minimo$", "$Maximo$" ),
   Valor = c(mean(datos_control$gain), median(datos_control$gain), sd(datos_control$gain), 
             min(datos_control$gain), max(datos_control$gain))
 )
+```
 
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 # Imprimir la tabla usando kable con opciones de kableExtra
 kable(tabla_medidas_control,
       col.names = c("Medida", "Valor"),
@@ -1263,31 +1225,10 @@ kable(tabla_medidas_control,
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   column_spec(2, width = "3cm")
 
-
-#############################################################################
-# Medidas descriptivas
-# datos_control %>%
-#   summarise(
-#     Media_mpg   = mean(datos_control$gain),
-#     Mediana_mpg = median(datos_control$gain),
-#     DesvStd_mpg = sd(datos_control$gain),
-#     Min_mpg     = min(datos_control$gain),
-#     Max_mpg     = max(datos_control$gain)
-#   ) %>%
-#   kable(caption = "Tabla de medidas descriptivas de datos_control")
-
-#############################################################################
-
-# Graficos descriptivos
-plot_con_hist <- ggplot(datos_control, aes(x = gain))+
-  geom_histogram(bins = 22)+
-  labs(y = "Cantidad")
-
-plot_con_box <-ggplot(datos_control, aes(y = gain))+
-  geom_boxplot()+
-  labs(y = "cambio de peso")
+```
 
 
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
 # Datos de Ozone
 datos_oz <- datos %>% 
   filter(group == "Ozone")
@@ -1295,11 +1236,14 @@ datos_oz <- datos %>%
 
 # Crear un data frame para la tabla
 tabla_medidas_oz <- data.frame(
-  Medida = c("$Media$","$Mediana$", "$Desvio estandar$", "$Minimo$", "$Maximo$" ),
+  Medida = c("$Media$","$Mediana$", "$Desvio$  $estandar$", "$Minimo$", "$Maximo$" ),
   Valor = c(mean(datos_oz$gain), median(datos_oz$gain), sd(datos_oz$gain), 
             min(datos_oz$gain), max(datos_oz$gain))
 )
+```
 
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 # Imprimir la tabla usando kable con opciones de kableExtra
 kable(tabla_medidas_oz,
       col.names = c("Medida", "Valor"),
@@ -1311,19 +1255,18 @@ kable(tabla_medidas_oz,
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   column_spec(2, width = "3cm")
 
-###########################################################################
-# Medidas descriptivas
-# datos_oz %>%
-#   summarise(
-#     Media_mpg   = mean(datos_oz$gain),
-#     Mediana_mpg = median(datos_oz$gain),
-#     DesvStd_mpg = sd(datos_oz$gain),
-#     Min_mpg     = min(datos_oz$gain),
-#     Max_mpg     = max(datos_oz$gain)
-#   ) %>%
-#   kable(caption = "Tabla de medidas descriptivas de datos de ozone")
+```
 
-###########################################################################
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+# Graficos descriptivos
+plot_con_hist <- ggplot(datos_control, aes(x = gain))+
+  geom_histogram(bins = 22)+
+  labs(y = "Cantidad")
+
+plot_con_box <-ggplot(datos_control, aes(y = gain))+
+  geom_boxplot()+
+  labs(y = "cambio de peso")
 
 # Graficos descriptivos
 plot_oz_hist <-ggplot(datos_oz, aes(x = gain))+
@@ -1333,9 +1276,10 @@ plot_oz_hist <-ggplot(datos_oz, aes(x = gain))+
 plot_oz_box <-ggplot(datos_oz, aes(y = gain))+
   geom_boxplot()+
   labs(y = "cambio de peso")
+```
 
 
-
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 6, fig.height = 7, fig.cap="Histograma de la muestras de X"}
 titulo_fila1 <- textGrob("Histograma y Boxplot para Control", gp = gpar(fontsize = 14, fontface = "bold"))
 titulo_fila2 <- textGrob("Histograma y Boxplot para Ozone", gp = gpar(fontsize = 14, fontface = "bold"))
 
@@ -1348,11 +1292,16 @@ grid.arrange(
   ncol = 1, heights = c(0.4, 1, 0.4, 1)  # ajusta altura de títulos
 )
 
+```
 
-
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 7, fig.height = 3.5, fig.cap="Histograma y Boxplot para Control"}
+grid.arrange(plot_con_hist, plot_con_box, ncol = 2)
 
 ```
 
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 7, fig.height = 3.5, fig.cap="Histograma y Boxplot para Control"}
+grid.arrange(plot_oz_hist, plot_oz_box, ncol = 2)
+```
 
 
 ## Conclusion mia
@@ -1364,3 +1313,57 @@ En base a las medidas descriptivas obtenidas, se observa una diferencia consider
 
 Asimismo, el análisis mediante diagramas de caja (boxplots) revela que la distribución del cambio de peso en las ratas del grupo ozono presenta una asimetría hacia la izquierda, lo cual sugiere la presencia de valores más bajos en comparación con la mediana. 
 En contraste, el cambio de peso en las ratas del grupo control muestra una distribución más concentrada, lo que indica una mayor homogeneidad en los datos de ese grupo.
+
+
+
+
+## item 7
+
+## Diferencias entre la distribución normal y la t de Student con 3 grados de libertad:
+Dadas una misma media y varianza, tanto la distribución normal como la t de Student con 3 grados de libertad son simétricas respecto a su media. Sin embargo, presentan diferencias importantes:
+
+1) Colas y valores extremos
+
+* La distribución normal decreció rápidamente a medida que se alejaba del centro, lo que implicó que los valores extremos tuvieran una probabilidad muy baja.
+
+* En cambio, la t de Student con 3 grados de libertad presentó colas más pesadas, es decir, asignó una mayor probabilidad a valores extremos. Esto significó que fue más probable observar datos alejados del centro bajo esta distribución.
+
+2) Dispersión de los datos
+
+* Los valores generados por una normal estuvieron más concentrados alrededor de la media, lo que se reflejó en una menor dispersión.
+
+* En cambio, la t de Student mostró mayor variabilidad, especialmente en los extremos. Aunque la varianza fue la misma numéricamente, la mayor dispersión efectiva afectó a las estadísticas inferenciales como los intervalos de confianza, haciéndolos más amplios.
+
+3) Uso en contextos con poca información
+
+* Cuando se trabajó con muestras pequeñas o con incertidumbre sobre la varianza, la t de Student fue preferible.
+
+* Su forma con colas pesadas permitió capturar mejor la variabilidad e incertidumbre en situaciones donde los datos fueron escasos o ruidosos, protegiendo contra la subestimación del error.
+
+
+```{r}
+
+# setear datos
+prueba <- data.frame(
+  valores = seq(-5, 5, length.out = 1000))
+
+# agregar densidad
+prueba$den_norm <- dnorm(prueba$valores)
+
+scaled_t_density <- function(x, df, mean = 0, sd = 1) {
+  dt((x - mean) / sd, df) / sd
+}
+
+prueba$den_t <- scaled_t_density(prueba$valores, 3)
+
+
+# Graficar la curva de densidad
+ggplot(prueba, aes(x = valores, y = den_norm)) +
+  geom_line(aes(y = den_norm, color = "Normal")) +
+  geom_line(aes(y = den_t, color = "t-Student (df = 3)")) +
+  labs(
+    title = "Comparación de densidades: Normal vs t-Student (df=3)",
+    x = "valores", y = "Densidad", color = "Distribución"
+  ) 
+```
+
