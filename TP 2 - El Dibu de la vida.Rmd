@@ -1399,7 +1399,7 @@ log_posterior <- function(params, y_vector) {
 
 ```
 
-En este item deberia ser prudente mostrar el vector de parametros de inicio y la matriz de varianzas y covarianzas
+En este item deberia ser prudente mostrar el vector de parametros de inicio y la matriz de varianzas y covarianzas donde la matriz de 4x4 deberia tener un valor para los mu y un valor para los sigma para que la funcion pueda converger 
 
 
 Luego hay que sacar muestras con la funcion de metropolis hastings en base logaritmica para cada parametro del modelo
