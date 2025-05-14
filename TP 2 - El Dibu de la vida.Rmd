@@ -136,7 +136,6 @@ convergencia a la distribución objetivo.
 \newpage
 
 ```{r , echo=FALSE, message=FALSE, warning=FALSE}
-library(ggplot2)
 library(purrr)
 library(latex2exp)
 library(grid)
@@ -505,7 +504,7 @@ graficar_trazas_md(df_muestras_md, ylab = "y", colors = c("#AEC6CF", "#F08080", 
 
 
 
-```{r f6,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8}
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md$valor, ncol = n_cadenas, byrow = FALSE)
@@ -537,7 +536,7 @@ kable(tabla_diagnostico,
 ```
 
 
-```{r f7,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con σ = 1.3"}
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con σ = 1.3"}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
 muestras_md <- list()
@@ -558,16 +557,17 @@ for (j in seq_len(n_cadenas)) {
 
 # Con esto descartamos las primeras mil muestras que aun "no convergen"
 df_muestras_md <- crear_df_muestras(muestras_md)
+```
 
 
-
+```{r f6,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con σ = 1.3"}
 # Grafica las 4 trazas
 traceplot2 <- graficar_trazas_md(df_muestras_md, ylab = "y", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 
 traceplot2
 ```
 
-```{r f8,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md$valor, ncol = n_cadenas, byrow = FALSE)
@@ -601,7 +601,7 @@ kable(tabla_diagnostico,
 
 
 
-```{r f9,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE}
 set.seed(2198)
 # Copiando lo del profe:
 muestras <- metropolis_hastings_normal(
@@ -611,16 +611,11 @@ muestras <- metropolis_hastings_normal(
   sigma = 1.3
 )
 
-# grafica la muestra de Y con una  propuesta de sigma = 1.3
-graficar_distribucion(muestras, grid_y, py(grid_y), xlab = "y", ylab = TeX("$f_Y(y)$"), color = "#44A699", color_l = "#44A699")
-```
-```{r f10,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
-# grafica la traza de la transformada
-graficar_traza(muestras, color = "#44A699", ylab = "y")
 ```
 
 
-```{r f11,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de X"}
+
+```{r f7,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de X"}
 # Transformamos las muestras de Y a muestras de X:
 muestras_x <- exp(muestras)
 
@@ -628,10 +623,13 @@ muestras_x <- exp(muestras)
 graficar_distribucion(muestras_x, grid_x, grid_px , ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
 ```
 
-```{r f12,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de X"}
+```{r f8,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de X"}
 # Traza de la muestra objetivo
 graficar_traza(muestras_x, color = "#3b78b0")
 ```
+
+
+
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 # Completamos el codigo:
@@ -735,18 +733,20 @@ muestralog <- metropolis_hastings_log(
 )
 ```
 
-
-```{r f13,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de Y"}
-graficar_distribucion(muestralog, grid_y, grid_p_y, xlab = "y", ylab = TeX("$f_Y(y)$"), color = "#44A699", color_l = "#44A699")
+```{r f9,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de X"}
+# Muestras de X transformando la muestra de Y
+muestras_x <- exp(muestralog)
+graficar_distribucion(muestras_x, grid_x, grid_px, ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
 ```
 
 
-```{r f14,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
-graficar_traza(muestralog, color = "#44A699", ylab = "y")
+```{r f10,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
+graficar_traza(muestras_x, color = "#3b78b0")                           
 ```
 
 
-```{r f15,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+
+```{r f11,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
 muestras_md_log <- list()
@@ -772,7 +772,7 @@ df_muestras_md_log <- crear_df_muestras(muestras_md_log)
 graficar_trazas_md(df_muestras_md_log, ylab = "y", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
-```{r f16,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md_log$valor, ncol = n_cadenas, byrow = FALSE)
 
@@ -801,16 +801,10 @@ kable(tabla_diagnostico,
   column_spec(2, width = "3cm")
 ```
 
-```{r f17,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de X"}
-# Muestras de X transformando la muestra de Y
-muestras_x <- exp(muestralog)
-graficar_distribucion(muestras_x, grid_x, grid_px, ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
-```
 
 
-```{r f18,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
-graficar_traza(muestras_x, color = "#3b78b0")                           
-```
+
+
 
 \newpage
 
@@ -907,7 +901,16 @@ muestras_theta_estrella <- metropolis_hastings_log(
 ```
 
 
-```{r ,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+
+
+
+
+
+
+
+
+```{r 12,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+# BORRAR
 #histograma que muestra la dist a posteriori marginal de mu
 graficar_distribucion(
   muestras_theta_estrella[ ,1], #[1000:10000]
@@ -921,6 +924,8 @@ graficar_distribucion(
 
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+# BORRAR
+
 #traceplot de mu
 plot_trace(muestras_theta_estrella[ ,1], color = "green", ylab = "mu")
 ```
@@ -948,22 +953,29 @@ for (j in seq_len(n_cadenas)) {
 df_muestras_md_log <- crear_df_muestras(muestras_md_log)
 
 #dataframe con las muestras de mu
-df_muestras_mu <- df_muestras_md_log[c(1:10000,20001:30000,40001:50000,60001:70000), ]
+df_muestras_mu <- df_muestras_md_log |> filter(paso <= 10000)
 
 
 #dataframe con las muestras de sigma 
-df_muestras_sigma <- df_muestras_md_log[c(10001:20000,30001:40000,50001:60000,70001:80000), ]
+df_muestras_sigma <- df_muestras_md_log |> filter(paso > 10000)
 
+```
+```{r}
+df_muestras_mu_filter <- df_muestras_md_log |> filter(paso <= 10000)
 ```
 
 
 ```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+# BORRAR
+
 # Grafica las 4 trazas
 graficar_trazas_md(df_muestras_mu, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+# BORRAR
+
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_mu$valor, ncol = n_cadenas, byrow = FALSE)
@@ -1018,7 +1030,7 @@ for (j in seq_len(n_cadenas)) {
 df_muestras_md_log2 <- crear_df_muestras(muestras_md_log2)
 
 #dataframe con las muestras de mu
-df_muestras_mu2 <- df_muestras_md_log2[c(1:10000,20001:30000,40001:50000,60001:70000), ]
+df_muestras_mu2 <- df_muestras_md_log2 |> filter(paso <= 10000)
 
 ```
 
@@ -1342,7 +1354,6 @@ Dadas una misma media y varianza, tanto la distribución normal como la t de Stu
 
 
 ```{r}
-
 # setear datos
 prueba <- data.frame(
   valores = seq(-5, 5, length.out = 1000))
@@ -1370,16 +1381,16 @@ ggplot(prueba, aes(x = valores, y = den_norm)) +
 
 #ITEM 8
 funcion del posterior generalizado en base logaritmica para eficiencia "computacional"
+aca iria una introduccion y la formula del posterior para cada modelo
+
 
 
 ```{r}
-# DEBE SER UNA FUNCION PARECIDA AL ITEM 5 QUE TENGA DE ARGUMENTOS UN VECTOR DE PARAMETROS PERO DE DIMENSION 5
-
 # Función de densidad posterior en escala logarítmica (sin normalizar)
-log_posterior <- function(params, y_vector, normal = TRUE) {
-  # 'params' tiene longitud 2
-  mu <- params[1,2]
-  sigma_estrella <- params[3,4]
+log_posterior_tarkington <- function(params, y_vector, normal = TRUE) {
+  # 'params' tiene longitud 4
+  mu <- params[1:2]
+  sigma_estrella <- params[3:4]
   sigma <- exp(sigma_estrella) # Salida sigma debe ser positiva
 
   if(normal == T){
