@@ -470,6 +470,7 @@ calcular_n_eff <- function(muestras) {
 
 ```
 
+
 ```{r f5,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 0.2"}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas de muestras con el metodo usado y una propuesta normal con sigma 0.2
@@ -534,6 +535,12 @@ kable(tabla_diagnostico,
   column_spec(2, width = "3cm")
 
 ```
+
+
+El análisis visual del trace plot, presentado en la @ref(fig:f5), sugiere una convergencia de las cuatro cadenas de Markov hacia una distribución común, lo que es consistente con el valor de $ \hat{R} $ de 1.001601, cercano al valor ideal de 1 que indica una buena mezcla entre las cadenas. No obstante, al examinar el tamaño efectivo de muestra ( $N_eff $ ) presentado en la Tabla 1, se observa que los valores para cada cadena y el total son considerablemente bajos en relación con el número total de iteraciones. Este reducido tamaño efectivo de muestra indica una alta autocorrelación dentro de las cadenas. En consecuencia, la alta autocorrelación compromete la validez de utilizar directamente estas muestras para realizar inferencias precisas sobre la distribución objetivo.
+
+
+Se continuó el análisis realizando el mismo procedimiento evaluando los resultados de las medidas de diagnóstico $ \hat{R} $ y $N_eff$ , a través de diferentes valores de sigma.
 
 
 ```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con σ = 1.3"}
@@ -614,6 +621,12 @@ muestras <- metropolis_hastings_normal(
 ```
 
 
+Por lo que tomando en consideración dicho análisis se concluyó, como se puede observar en la @ref(fig:f6), que el valor de $ \sigma = 1.3$ parece ser el más adecuado para realizar inferencias ya que su valor de $ \hat{R}  $ fue el más cercano a 1 de los comparados y las muestras de las diferentes cadenas se mezclas y parecen generar muestras representativas de la distribución objetivo ya que se estabilizan y muestran una buena mezcla. Además, el tamaño efectivo de muestra total fue el mayor, lo que señala que la autocorrelación es baja, y la menor de todas las comparadas. Por lo que se decidió continuar el análisis con un valor de $$ \sigma = 1.3$$ para la distribución propuesta. También se consideró apropiado no eliminar las primeras 1000 muestras ya que las cadenas de markov parecieran converger rápidamente a la misma distribución, lo que indica una elección apropiada del valor inicial.
+
+
+Se implementó entonces la distribución propuesta normal centrada en 0, con $$\sigma = 1.3$$, para obtener muestras de la variable X por medio del algoritmo Metropolis Hastings.
+
+
 
 ```{r f7,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de X"}
 # Transformamos las muestras de Y a muestras de X:
@@ -629,6 +642,14 @@ graficar_traza(muestras_x, color = "#3b78b0")
 ```
 
 
+Como se puede observar en la @ref(fig:f7), la distribución empírica parece haber recorrido (en su mayoría) el recorrido de las distribuciones objetivo, notando gráficamente una similitud en el histograma con la densidad teórica. Adicionalmente, en la @ref(fig:8), se muestra un patrón de ruido blanco, lo que parece señalar una pérdida bastante rápida de la dependencia de cada muestra con la anterior (tiene menos autocorrelación).
+
+
+## Implementación de densidad de Y 
+
+La implementación efectiva del algoritmo de Metropolis-Hastings, se enfrenta a desafíos computacionales relacionados con la magnitud de los números involucrados. Un obstáculo surge al evaluar la función de densidad objetivo en cada iteración del algoritmo. Esta función, que guía el proceso de muestreo hacia las regiones de mayor probabilidad, puede implicar la multiplicación de numerosos términos, especialmente cuando se modelan datos con múltiples observaciones. Si estos términos son pequeños, su producto puede rápidamente volverse tan pequeño que la computadora lo representa como cero, es decir se produce el  fenómeno conocido como underflow. Este fenómeno dificulta la correcta ejecución del algoritmo de Metropolis-Hastings ya que puede conducir a errores que interrumpen el proceso de muestreo, impidiendo la obtención de las muestras necesarias para realizar inferencias válidas. Incluso si el programa no se detiene, un underflow puede resultar en la aceptación o rechazo incorrecto de valores propuestos, desviando la cadena de Markov de la distribución objetivo real y disminuyendo la fiabilidad de los resultados. Además, como el algoritmo evalúa la densidad objetivo en diferentes puntos del espacio paramétrico, la probabilidad de encontrar estas situaciones problemáticas se multiplica.
+Una solución práctica es el uso de la escala logarítmica, al trabajar con los logaritmos de las probabilidades en lugar de las probabilidades directas, las operaciones de multiplicación se convierten en sumas y las divisiones se transforman en restas. Lo cual evita la utilización de números extremadamente pequeños, estabilizando los cálculos dentro del algoritmo de Metropolis-Hastings. 
+A continuación, se implementó con el método de metropolis hastings en escala logarítmica la obtención de muestras de la variable X.
 
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -733,11 +754,15 @@ muestralog <- metropolis_hastings_log(
 )
 ```
 
-```{r f9,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de X"}
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap=c("(\\#fig:grafico1) Gráfico de dispersión", "(\\#fig:grafico2) Histograma de mpg"),fig.show='hold', out.width='50%'}
 # Muestras de X transformando la muestra de Y
 muestras_x <- exp(muestralog)
 graficar_distribucion(muestras_x, grid_x, grid_px, ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
+
+graficar_traza(muestras_x, color = "#3b78b0")  
 ```
+
+
 
 
 ```{r f10,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
@@ -769,7 +794,7 @@ for (j in seq_len(n_cadenas)) {
 df_muestras_md_log <- crear_df_muestras(muestras_md_log)
 
 # Grafica las 4 trazas
-graficar_trazas_md(df_muestras_md_log, ylab = "y", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+graficar_trazas_md(df_muestras_md_log, ylab = "x", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
@@ -808,7 +833,7 @@ kable(tabla_diagnostico,
 
 \newpage
 
-## Inferencia Bayesiana en Múltiples Dimensiones {#Objetivo-2}
+# Inferencia Bayesiana en Múltiples Dimensiones {#Objetivo-2}
 
 En modelos bayesianos con múltiples parámetros, la distribución a posteriori conjunta se vuelve el objetivo de inferencia. En este caso, la distribución objetivo tiene múltiples dimensiones y se obtiene mediante la aplicación de la regla de Bayes.
 
@@ -1170,9 +1195,6 @@ grid.arrange(plot_con_hist, plot_con_box, ncol = 2)
 grid.arrange(plot_oz_hist, plot_oz_box, ncol = 2)
 ```
 
-
-## Conclusion mia
-En base a las medidas descriptivas se puede concluir que el cambio en el peso de las ratas control y el cambio de peso para las ratas ozono tienen diferencias muy marcadas ya que el cambio de peso medio para las ratas de ozone son aproximadamente la mitad que el cambio de peso medio para las ratas control, es decir el peso medio de las ratas de ozone se redujo aproximadamente a la mitad. Ademas con los boxplot del cambio de peso para las ratas de ozone se puede concluir que son aproximadamente asimetricos por izquierda, mientras que el cambio de peso de las ratas control es muy concentrado
 
 
 ## Modificada por chatgpt
