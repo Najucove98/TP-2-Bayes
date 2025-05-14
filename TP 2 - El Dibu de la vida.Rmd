@@ -537,10 +537,10 @@ kable(tabla_diagnostico,
 ```
 
 
-El análisis visual del trace plot, presentado en la @ref(fig:f5), sugiere una convergencia de las cuatro cadenas de Markov hacia una distribución común, lo que es consistente con el valor de $ \hat{R} $ de 1.001601, cercano al valor ideal de 1 que indica una buena mezcla entre las cadenas. No obstante, al examinar el tamaño efectivo de muestra ( $N_eff $ ) presentado en la Tabla 1, se observa que los valores para cada cadena y el total son considerablemente bajos en relación con el número total de iteraciones. Este reducido tamaño efectivo de muestra indica una alta autocorrelación dentro de las cadenas. En consecuencia, la alta autocorrelación compromete la validez de utilizar directamente estas muestras para realizar inferencias precisas sobre la distribución objetivo.
+El análisis visual del trace plot, presentado en la @ref(fig:f5), sugiere una convergencia de las cuatro cadenas de Markov hacia una distribución común, lo que es consistente con el valor de $\hat{R}$ de 1.001601, cercano al valor ideal de 1 que indica una buena mezcla entre las cadenas. No obstante, al examinar el tamaño efectivo de muestra ( $N_eff$ ) presentado en la Tabla 1, se observa que los valores para cada cadena y el total son considerablemente bajos en relación con el número total de iteraciones. Este reducido tamaño efectivo de muestra indica una alta autocorrelación dentro de las cadenas. En consecuencia, la alta autocorrelación compromete la validez de utilizar directamente estas muestras para realizar inferencias precisas sobre la distribución objetivo.
 
 
-Se continuó el análisis realizando el mismo procedimiento evaluando los resultados de las medidas de diagnóstico $ \hat{R} $ y $N_eff$ , a través de diferentes valores de sigma.
+Se continuó el análisis realizando el mismo procedimiento evaluando los resultados de las medidas de diagnóstico $\hat{R}$ y $N_eff$ , a través de diferentes valores de sigma.
 
 
 ```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con σ = 1.3"}
@@ -621,10 +621,10 @@ muestras <- metropolis_hastings_normal(
 ```
 
 
-Por lo que tomando en consideración dicho análisis se concluyó, como se puede observar en la @ref(fig:f6), que el valor de $ \sigma = 1.3$ parece ser el más adecuado para realizar inferencias ya que su valor de $ \hat{R}  $ fue el más cercano a 1 de los comparados y las muestras de las diferentes cadenas se mezclas y parecen generar muestras representativas de la distribución objetivo ya que se estabilizan y muestran una buena mezcla. Además, el tamaño efectivo de muestra total fue el mayor, lo que señala que la autocorrelación es baja, y la menor de todas las comparadas. Por lo que se decidió continuar el análisis con un valor de $$ \sigma = 1.3$$ para la distribución propuesta. También se consideró apropiado no eliminar las primeras 1000 muestras ya que las cadenas de markov parecieran converger rápidamente a la misma distribución, lo que indica una elección apropiada del valor inicial.
+Por lo que tomando en consideración dicho análisis se concluyó, como se puede observar en la @ref(fig:f6), que el valor de $\sigma = 1.3$ parece ser el más adecuado para realizar inferencias ya que su valor de $\hat{R}$ fue el más cercano a 1 de los comparados y las muestras de las diferentes cadenas se mezclas y parecen generar muestras representativas de la distribución objetivo ya que se estabilizan y muestran una buena mezcla. Además, el tamaño efectivo de muestra total fue el mayor, lo que señala que la autocorrelación es baja, y la menor de todas las comparadas. Por lo que se decidió continuar el análisis con un valor de $\sigma = 1.3$ para la distribución propuesta. También se consideró apropiado no eliminar las primeras 1000 muestras ya que las cadenas de markov parecieran converger rápidamente a la misma distribución, lo que indica una elección apropiada del valor inicial.
 
 
-Se implementó entonces la distribución propuesta normal centrada en 0, con $$\sigma = 1.3$$, para obtener muestras de la variable X por medio del algoritmo Metropolis Hastings.
+Se implementó entonces la distribución propuesta normal centrada en 0, con $\sigma = 1.3$, para obtener muestras de la variable X por medio del algoritmo Metropolis Hastings.
 
 
 
@@ -648,7 +648,11 @@ Como se puede observar en la @ref(fig:f7), la distribución empírica parece hab
 ## Implementación de densidad de Y 
 
 La implementación efectiva del algoritmo de Metropolis-Hastings, se enfrenta a desafíos computacionales relacionados con la magnitud de los números involucrados. Un obstáculo surge al evaluar la función de densidad objetivo en cada iteración del algoritmo. Esta función, que guía el proceso de muestreo hacia las regiones de mayor probabilidad, puede implicar la multiplicación de numerosos términos, especialmente cuando se modelan datos con múltiples observaciones. Si estos términos son pequeños, su producto puede rápidamente volverse tan pequeño que la computadora lo representa como cero, es decir se produce el  fenómeno conocido como underflow. Este fenómeno dificulta la correcta ejecución del algoritmo de Metropolis-Hastings ya que puede conducir a errores que interrumpen el proceso de muestreo, impidiendo la obtención de las muestras necesarias para realizar inferencias válidas. Incluso si el programa no se detiene, un underflow puede resultar en la aceptación o rechazo incorrecto de valores propuestos, desviando la cadena de Markov de la distribución objetivo real y disminuyendo la fiabilidad de los resultados. Además, como el algoritmo evalúa la densidad objetivo en diferentes puntos del espacio paramétrico, la probabilidad de encontrar estas situaciones problemáticas se multiplica.
+
+
 Una solución práctica es el uso de la escala logarítmica, al trabajar con los logaritmos de las probabilidades en lugar de las probabilidades directas, las operaciones de multiplicación se convierten en sumas y las divisiones se transforman en restas. Lo cual evita la utilización de números extremadamente pequeños, estabilizando los cálculos dentro del algoritmo de Metropolis-Hastings. 
+
+
 A continuación, se implementó con el método de metropolis hastings en escala logarítmica la obtención de muestras de la variable X. 
 
 
@@ -754,15 +758,12 @@ muestralog <- metropolis_hastings_log(
 )
 ```
 
-```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap=c("(\\#fig:grafico1) Gráfico de dispersión", "(\\#fig:grafico2) Histograma de mpg"),fig.show='hold', out.width='50%'}
+```{r f9,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de X"}
 # Muestras de X transformando la muestra de Y
 muestras_x <- exp(muestralog)
 graficar_distribucion(muestras_x, grid_x, grid_px, ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
 
-graficar_traza(muestras_x, color = "#3b78b0")         
 ```
-
-
 
 
 ```{r f10,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
@@ -814,6 +815,7 @@ tabla_diagnostico <- data.frame(
   Valor = c(R_hat, n_effs, n_eff)
 )
 
+
 # Imprimir la tabla usando kable con opciones de kableExtra
 kable(tabla_diagnostico,
       col.names = c("Métrica", "Valor"),
@@ -824,9 +826,12 @@ kable(tabla_diagnostico,
       caption.placement = "bottom") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   column_spec(2, width = "3cm")
+
+
 ```
 
 
+La @ref(fig:f9) muestra el histograma de las muestras obtenidas para la variable X, indicando una buena cobertura de su rango de variabilidad. El traceplot correspondiente @ref(fig:f11) sugiere convergencia de las cadenas de markov hacia una misma distribución. Es notable que las medidas de diagnóstico ($\hat{R}$ y $N_eff$) para estas muestras, mostradas en la Tabla 3, son idénticas a las calculadas previamente para la variable Y (Tabla 2 de la @ref(fig:f6)). Esta coincidencia sucede ya que, el algoritmo de Metropolis-Hastings se haya implementado utilizando cálculos en escala logarítmica para la estabilidad numérica para su optimización, las muestras generadas de la variable X se obtienen a partir del mismo valor de inicio, y por lo tanto sus propiedades de convergencia y eficiencia evaluadas por $\hat{R}$ y $N_eff$, permanecen inalteradas.
 
 
 
@@ -899,7 +904,10 @@ log_posterior <- function(params, y_vector) {
 ```
 
 
-Utilice los valores de $y_i$ en el archivo precalentamiento-mh.txt y la función metropolis_hastings_log() para obtener muestras del posterior de $\boldsymbol{\theta} = \{\mu,\ \sigma \}$. Corra dos cadenas de Markov. Calcule el tamaño efectivo de muestra y evalúe mezcla y convergencia de manera gráfica.
+Con el objetivo de obtener muestras del posterior de los parámetros $\boldsymbol{\theta} = \{\mu,\ \sigma \}$. que tengan propiedades de convergencia de las cadenas de markov  y estabilidad apropiadas, se implementó la función metropolis_hastings_log() y una distribución propuesta normal centrada en los valores iniciales de yi​ proporcionados en el archivo precalentamiento-mh.txt.
+
+
+Inicialmente, se corrieron dos cadenas de Markov, una para el parámetro $\mu$ y otra para el parámetro $\sigma$, y se evaluaron sus medidas de diagnóstico como el tamaño efectivo de muestra y el estadístico $\hat{R}$, que indica la convergencia de las cadenas de markov. Sin embargo, los resultados preliminares sugirieron la necesidad de explorar diferentes combinaciones para los valores iniciales y la desviación estándar de la distribución propuesta, buscando optimizar la calidad de las muestras obtenidas. 
 
 
 
@@ -1291,81 +1299,43 @@ $$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \boldsymbol{y}) \propto\left[ \sum_{i
       
 
 ```{r}
-datos_oz
-datos_control
-
-# Función de densidad posterior en escala logarítmica (Ozono)
-log_posterior_oz <- function(params, y_vector, normal = TRUE) {
+#Distinta por grupo
+# Función de densidad posterior en escala logarítmica (sin normalizar)
+log_posterior_tarkington <- function(params, y_vector, normal = TRUE) {
   # 'params' tiene longitud 4
-  mu_oz <- params[1]
-  sigma_estrella_oz <- params[2]
-  sigma_oz <- exp(sigma_estrella_oz) # Salida sigma debe ser positiva
-  
+  mu <- params[1:2]
+  sigma_estrella <- params[3:4]
+  sigma <- exp(sigma_estrella) # Salida sigma debe ser positiva
+
   if(normal == T){
-    
+  
     # Log-verosimilitud (asumiendo datos independientes)
-    log_likelihood_oz <- sum(dnorm(y_vector, mean = mu_oz, sd = sigma_oz, log = TRUE))
+    log_likelihood <- sum(dnorm(y_vector, mean = mu, sd = sigma, log = TRUE))
     
   } else {
     # Log-verosimilitud (asumiendo datos independientes)
-    log_likelihood_oz <- sum(dt(y_vector, mean = mu_oz, sd = sigma_oz, log = TRUE))
-    
+    log_likelihood <- sum(dt(y_vector, mean = mu, sd = sigma, log = TRUE))
+
   }
-  
+
   # Log-prior de mu
-  log_prior_mu_oz <- dnorm(mu_oz , mean = 0, sd = 1, log = TRUE)
+  log_prior_mu1 <- dnorm(mu[1], mean = 0, sd = 1, log = TRUE)
+
+  # Log-prior de mu
+  log_prior_mu2 <- dnorm(mu[2], mean = 0, sd = 1, log = TRUE)
   
   # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
-  log_prior_sigma_oz <- dgamma(sigma_oz, shape = 2, rate = 2, log = TRUE) 
+  log_prior_sigma1 <- dgamma(sigma[3], shape = 2, rate = 2, log = TRUE) + sigma_estrella[1]
+
+  # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
+  log_prior_sigma2 <- dgamma(sigma[4], shape = 2, rate = 2, log = TRUE) + sigma_estrella[2]
   
   # Log-posterior no normalizado
-  log_posterior_value <- log_likelihood_oz + log_prior_mu_oz + log_prior_sigma_oz + sigma_estrella_oz
-  
+  log_posterior_value <- log_likelihood + log_prior_mu1 + log_prior_mu2 + log_prior_sigma1 + log_prior_sigma2
+
   return(log_posterior_value)
 }
 
-
-# Función de densidad posterior en escala logarítmica (Control)
-log_posterior_cont <- function(params, y_vector, normal = T) {
-  # 'params' tiene longitud 4
-  mu_cont <- params[1]
-  sigma_estrella_cont <- params[2]
-  sigma_cont <- exp(sigma_estrella_cont) # Salida sigma debe ser positiva
-  
-  if(normal == T){
-    
-    # Log-verosimilitud (asumiendo datos independientes)
-    log_likelihood_cont <- sum(dnorm(y_vector, mean = mu_cont, sd = sigma_cont, log = TRUE))
-    
-  } else {
-    # Log-verosimilitud (asumiendo datos independientes)
-    log_likelihood_cont <- sum(dt(y_vector, mean = mu_cont, sd = sigma_cont, log = TRUE))
-    
-  }
-  
-  # Log-prior de mu
-  log_prior_mu_cont <- dnorm(mu_cont , mean = 0, sd = 1, log = TRUE)
-  
-  # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
-  log_prior_sigma_cont <- dgamma(sigma_cont, shape = 2, rate = 2, log = TRUE) 
-  
-  # Log-posterior no normalizado
-  log_posterior_value <- log_likelihood_cont + log_prior_mu_cont + log_prior_sigma_cont + sigma_estrella_cont
-  
-  return(log_posterior_value)
-}
-
-logp_oz <- partial(log_posterior_oz, y_vector = y_datos)
-
-logp_cont <- partial(log_posterior_cont, y_vector = y_datos)
-
-
-
-log_posterior_general <- function(params){
-  params1 <- params[1:2]
-  params2 <- params[3:4]
-  return(log_posterior_oz(params1) + log_posterior_cont(params2))
-}
 ```
 
 En este item deberia ser prudente mostrar el vector de parametros de inicio y la matriz de varianzas y covarianzas donde la matriz de 4x4 deberia tener un valor para los mu y un valor para los sigma para que la funcion pueda converger 
