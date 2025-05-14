@@ -1367,3 +1367,61 @@ ggplot(prueba, aes(x = valores, y = den_norm)) +
   ) 
 ```
 
+
+#ITEM 8
+funcion del posterior generalizado en base logaritmica para eficiencia "computacional"
+
+
+```{r}
+# DEBE SER UNA FUNCION PARECIDA AL ITEM 5 QUE TENGA DE ARGUMENTOS UN VECTOR DE PARAMETROS PERO DE DIMENSION 5
+
+# Función de densidad posterior en escala logarítmica (sin normalizar)
+log_posterior <- function(params, y_vector) {
+  # 'params' tiene longitud 2
+  mu <- params[1]
+  sigma_estrella <- params[2]
+  sigma <- exp(sigma_estrella) # Salida sigma debe ser positiva
+
+  # Log-verosimilitud (asumiendo datos independientes)
+  log_likelihood <- sum(dnorm(y_vector, mean = mu, sd = sigma, log = TRUE))
+
+  # Log-prior de mu
+  log_prior_mu <- dnorm(mu, mean = 0, sd = 1, log = TRUE)
+
+  # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
+  log_prior_sigma <- dgamma(sigma, shape = 2, rate = 2, log = TRUE) + sigma_estrella
+
+  # Log-posterior no normalizado
+  log_posterior_value <- log_likelihood + log_prior_mu + log_prior_sigma
+
+  return(log_posterior_value)
+}
+
+```
+
+En este item deberia ser prudente mostrar el vector de parametros de inicio y la matriz de varianzas y covarianzas
+
+
+Luego hay que sacar muestras con la funcion de metropolis hastings en base logaritmica para cada parametro del modelo
+
+```{r}
+
+```
+
+mostramos su traceplot
+
+```{r}
+
+```
+
+se concluye brevemente cada uno de los graficos y sus traceplot y luego realizamos las medidas de diagnostico sobre cada parametro
+
+```{r}
+
+```
+
+
+
+
+
+
