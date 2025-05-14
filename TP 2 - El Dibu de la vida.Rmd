@@ -1298,42 +1298,70 @@ $$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \boldsymbol{y}) \propto\left[ \sum_{i
       
 
 ```{r}
-#Distinta por grupo
-# Función de densidad posterior en escala logarítmica (sin normalizar)
-log_posterior_tarkington <- function(params, y_vector, normal = TRUE) {
+# Función de densidad posterior en escala logarítmica (Ozono)
+log_posterior_oz <- function(params, y_vector, normal = TRUE) {
   # 'params' tiene longitud 4
-  mu <- params[1:2]
-  sigma_estrella <- params[3:4]
-  sigma <- exp(sigma_estrella) # Salida sigma debe ser positiva
-
-  if(normal == T){
+  mu_oz <- params[1]
+  sigma_estrella_oz <- params[2]
+  sigma_oz <- exp(sigma_estrella_oz) # Salida sigma debe ser positiva
   
+  if(normal == T){
+    
     # Log-verosimilitud (asumiendo datos independientes)
-    log_likelihood <- sum(dnorm(y_vector, mean = mu, sd = sigma, log = TRUE))
+    log_likelihood_oz <- sum(dnorm(y_vector, mean = mu_oz, sd = sigma_oz, log = TRUE))
     
   } else {
     # Log-verosimilitud (asumiendo datos independientes)
-    log_likelihood <- sum(dt(y_vector, mean = mu, sd = sigma, log = TRUE))
-
+    log_likelihood_oz <- sum(log(scaled_t_density(y_vector, df = 3, mean = mu_oz, sd = sigma_oz)))
+    
   }
-
+  
   # Log-prior de mu
-  log_prior_mu1 <- dnorm(mu[1], mean = 0, sd = 1, log = TRUE)
-
-  # Log-prior de mu
-  log_prior_mu2 <- dnorm(mu[2], mean = 0, sd = 1, log = TRUE)
+  log_prior_mu_oz <- dnorm(mu_oz , mean = 0, sd = 1, log = TRUE)
   
   # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
-  log_prior_sigma1 <- dgamma(sigma[3], shape = 2, rate = 2, log = TRUE) + sigma_estrella[1]
-
-  # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
-  log_prior_sigma2 <- dgamma(sigma[4], shape = 2, rate = 2, log = TRUE) + sigma_estrella[2]
+  log_prior_sigma_oz <- dgamma(sigma_oz, shape = 2, rate = 2, log = TRUE) 
   
   # Log-posterior no normalizado
-  log_posterior_value <- log_likelihood + log_prior_mu1 + log_prior_mu2 + log_prior_sigma1 + log_prior_sigma2
-
+  log_posterior_value <- log_likelihood_oz + log_prior_mu_oz + log_prior_sigma_oz + sigma_estrella_oz
+  
   return(log_posterior_value)
 }
+
+
+# Función de densidad posterior en escala logarítmica (Control)
+log_posterior_cont <- function(params, y_vector, normal = T) {
+  # 'params' tiene longitud 4
+  mu_cont <- params[1]
+  sigma_estrella_cont <- params[2]
+  sigma_cont <- exp(sigma_estrella_cont) # Salida sigma debe ser positiva
+  
+  if(normal == T){
+    
+    # Log-verosimilitud (asumiendo datos independientes)
+    log_likelihood_cont <- sum(dnorm(y_vector, mean = mu_cont, sd = sigma_cont, log = TRUE))
+    
+  } else {
+    # Log-verosimilitud (asumiendo datos independientes)
+    log_likelihood_cont <- sum(log(scaled_t_density(y_vector, df = 3, mean = mu_cont, sd = sigma_cont)))
+    
+  }
+  
+  # Log-prior de mu
+  log_prior_mu_cont <- dnorm(mu_cont , mean = 0, sd = 1, log = TRUE)
+  
+  # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
+  log_prior_sigma_cont <- dgamma(sigma_cont, shape = 2, rate = 2, log = TRUE) 
+  
+  # Log-posterior no normalizado
+  log_posterior_value <- log_likelihood_cont + log_prior_mu_cont + log_prior_sigma_cont + sigma_estrella_cont
+  
+  return(log_posterior_value)
+}
+
+logp_oz <- partial(log_posterior_oz, y_vector = datos_oz$gain)
+
+logp_cont <- partial(log_posterior_cont, y_vector = datos_control$gain)
 
 ```
 
@@ -1342,20 +1370,135 @@ En este item deberia ser prudente mostrar el vector de parametros de inicio y la
 
 Luego hay que sacar muestras con la funcion de metropolis hastings en base logaritmica para cada parametro del modelo
 
-```{r}
 
+# OZONO NORMAL
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+set.seed(0398)
+# Entrada parametros = mu_o, sigma_oz, mu_c, sigma_c
+# matriz de varianza y covarianza
+sigma <- matrix(c(1.3^2   , 0   ,
+                  0     , 0.15^2 ), nrow = 2)  # Propuesto en clase 0.05^2
+
+
+# Obtener muestras
+muestras_theta_estrella_oz <- metropolis_hastings_log(
+  logp = logp_oz,
+  x = c(1.12,log(15)), # propuesto en clase 0 y log(1.5)
+  n = 5000,
+  sigma = sigma
+)
 ```
+
+
+```{r ,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+#histograma que muestra la dist a posteriori marginal de mu
+graficar_distribucion(
+  muestras_theta_estrella_oz[ ,1], #[1000:10000]
+  x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.5,
+  color = "green", #cambiar gama de colores para los parametros mu y sigma
+  xlab = "μ_oz",
+  ylab = NULL)
+# es un histograma que representa la distribucion aposteriori marginal de mu
+```
+
+
 
 mostramos su traceplot
 
-```{r}
-
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+#traceplot de mu
+plot_trace(muestras_theta_estrella_oz[ ,1], color = "green", ylab = "mu")
 ```
 
 se concluye brevemente cada uno de los graficos y sus traceplot y luego realizamos las medidas de diagnostico sobre cada parametro
 
-```{r}
+```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+set.seed(0398)
+# Creamos una lista para guardar 4 cadenas del vector de parametros
+muestras_md_log_oz <- list()
+n_cadenas <- 4
+sigma <- matrix(c(1.3^2   , 0   ,
+                  0     , 0.15^2 ), nrow = 2) #mejores valores 1.3 y 0.15
 
+# Se llama a la función `metropolis_hastings_normal` y se guardan los resultados en una lista.
+for (j in seq_len(n_cadenas)) {
+  muestras_md_log_oz[[j]] <- metropolis_hastings_log(
+    logp = logp_oz,
+    x = c(1.12,log(15)),
+    n = 5000,
+    sigma = sigma
+  )
+}
+
+# creamos un data frame para poder graficar
+df_muestras_md_log <- crear_df_muestras(muestras_md_log_oz)
+
+#dataframe con las muestras de mu
+df_muestras_mu <- df_muestras_md_log |> filter(paso <= 5000)
+
+
+#dataframe con las muestras de sigma 
+df_muestras_sigma <- df_muestras_md_log |> filter(paso > 5000)
+
+```
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+# BORRAR
+
+# Grafica las 4 trazas
+graficar_trazas_md(df_muestras_mu, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+```
+
+
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+
+set.seed(0398)
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_mu$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+# Imprimir la tabla usando kable con opciones de kableExtra
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(2, width = "3cm")
+```
+
+
+```{r ,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
+#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
+graficar_distribucion(
+  exp(muestras_theta_estrella_oz[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
+  x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.4,  #igual que arriba
+  color = "orange", #cambiar gama de colores para los parametros mu y sigma
+  xlab = "sigma",
+  ylab = NULL)
+```
+
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+#Traceplot de sigma estrella
+plot_trace(exp(muestras_theta_estrella_oz[ ,2]), color = "orange", ylab = "sigma")
 ```
 
 
@@ -1363,3 +1506,563 @@ se concluye brevemente cada uno de los graficos y sus traceplot y luego realizam
 
 
 
+
+
+
+
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+# Grafica las 4 trazas
+df_muestras_sigma_trp <- df_muestras_sigma
+df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
+graficar_trazas_md(df_muestras_sigma_trp, ylab = "sigma", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+```
+
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+set.seed(0398)
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_sigma_trp$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+# Imprimir la tabla usando kable con opciones de kableExtra
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(2, width = "3cm")
+```
+
+# CONTROL NORMAL
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+set.seed(0398)
+# Entrada parametros = mu_o, sigma_oz, mu_c, sigma_c
+# matriz de varianza y covarianza
+sigma <- matrix(c(1.3^2   , 0   ,
+                  0     , 0.15^2 ), nrow = 2)  # Propuesto en clase 0.05^2
+
+
+# Obtener muestras
+muestras_theta_estrella_c <- metropolis_hastings_log(
+  logp = logp_cont,
+  x = c(2,log(15)), # propuesto en clase 0 y log(1.5)
+  n = 5000,
+  sigma = sigma
+)
+```
+
+
+```{r ,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+#histograma que muestra la dist a posteriori marginal de mu
+graficar_distribucion(
+  muestras_theta_estrella_c[ ,1], #[1000:10000]
+  x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.4,
+  color = "green", #cambiar gama de colores para los parametros mu y sigma
+  xlab = "μ_c",
+  ylab = NULL)
+# es un histograma que representa la distribucion aposteriori marginal de mu
+```
+
+
+
+mostramos su traceplot
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+#traceplot de mu
+plot_trace(muestras_theta_estrella_c[ ,1], color = "green", ylab = "mu")
+```
+
+se concluye brevemente cada uno de los graficos y sus traceplot y luego realizamos las medidas de diagnostico sobre cada parametro
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+set.seed(0398)
+# Creamos una lista para guardar 4 cadenas del vector de parametros
+muestras_md_log_c <- list()
+n_cadenas <- 4
+sigma <- matrix(c(1.3^2   , 0   ,
+                  0     , 0.15^2 ), nrow = 2) #mejores valores 1.3 y 0.15
+
+# Se llama a la función `metropolis_hastings_normal` y se guardan los resultados en una lista.
+for (j in seq_len(n_cadenas)) {
+  muestras_md_log_c[[j]] <- metropolis_hastings_log(
+    logp = logp_cont,
+    x = c(2,log(15)),
+    n = 5000,
+    sigma = sigma
+  )
+}
+
+# creamos un data frame para poder graficar
+df_muestras_md_log <- crear_df_muestras(muestras_md_log_c)
+
+#dataframe con las muestras de mu
+df_muestras_mu <- df_muestras_md_log |> filter(paso <= 5000)
+
+
+#dataframe con las muestras de sigma 
+df_muestras_sigma <- df_muestras_md_log |> filter(paso > 5000)
+
+```
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+# BORRAR
+
+# Grafica las 4 trazas
+graficar_trazas_md(df_muestras_mu, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+```
+
+
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+
+set.seed(0398)
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_mu$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+# Imprimir la tabla usando kable con opciones de kableExtra
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(2, width = "3cm")
+```
+
+
+```{r ,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
+#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
+graficar_distribucion(
+  exp(muestras_theta_estrella_c[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
+  x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.4,  #igual que arriba
+  color = "orange", #cambiar gama de colores para los parametros mu y sigma
+  xlab = "sigma",
+  ylab = NULL)
+```
+
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+#Traceplot de sigma estrella
+plot_trace(exp(muestras_theta_estrella_c[ ,2]), color = "orange", ylab = "sigma")
+```
+
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+# Grafica las 4 trazas
+df_muestras_sigma_trp <- df_muestras_sigma
+df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
+graficar_trazas_md(df_muestras_sigma_trp, ylab = "sigma", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+```
+
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+set.seed(0398)
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_sigma_trp$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+# Imprimir la tabla usando kable con opciones de kableExtra
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(2, width = "3cm")
+```
+
+
+# OZONO T STUDENT
+```{r}
+logp_oz_t <- partial(log_posterior_oz, y_vector = datos_oz$gain, normal = F)
+
+logp_cont_t <- partial(log_posterior_cont, y_vector = datos_control$gain, normal = F)
+```
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+set.seed(0398)
+# Entrada parametros = mu_o, sigma_oz, mu_c, sigma_c
+# matriz de varianza y covarianza
+sigma <- matrix(c(1.3^2   , 0   ,
+                  0     , 0.15^2 ), nrow = 2)  # Propuesto en clase 0.05^2
+
+
+# Obtener muestras
+muestras_theta_estrella_oz <- metropolis_hastings_log(
+  logp = logp_oz_t,
+  x = c(1.12,log(15)), # propuesto en clase 0 y log(1.5)
+  n = 5000,
+  sigma = sigma
+)
+```
+
+
+```{r ,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+#histograma que muestra la dist a posteriori marginal de mu
+graficar_distribucion(
+  muestras_theta_estrella_oz[ ,1], #[1000:10000]
+  x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.5,
+  color = "green", #cambiar gama de colores para los parametros mu y sigma
+  xlab = "μ_oz",
+  ylab = NULL)
+# es un histograma que representa la distribucion aposteriori marginal de mu
+```
+
+
+
+mostramos su traceplot
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+#traceplot de mu
+plot_trace(muestras_theta_estrella_oz[ ,1], color = "green", ylab = "mu")
+```
+
+se concluye brevemente cada uno de los graficos y sus traceplot y luego realizamos las medidas de diagnostico sobre cada parametro
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+set.seed(0398)
+# Creamos una lista para guardar 4 cadenas del vector de parametros
+muestras_md_log_oz <- list()
+n_cadenas <- 4
+sigma <- matrix(c(1.3^2   , 0   ,
+                  0     , 0.15^2 ), nrow = 2) #mejores valores 1.3 y 0.15
+
+# Se llama a la función `metropolis_hastings_normal` y se guardan los resultados en una lista.
+for (j in seq_len(n_cadenas)) {
+  muestras_md_log_oz[[j]] <- metropolis_hastings_log(
+    logp = logp_oz_t,
+    x = c(1.12,log(15)),
+    n = 5000,
+    sigma = sigma
+  )
+}
+
+# creamos un data frame para poder graficar
+df_muestras_md_log <- crear_df_muestras(muestras_md_log_oz)
+
+#dataframe con las muestras de mu
+df_muestras_mu <- df_muestras_md_log |> filter(paso <= 5000)
+
+
+#dataframe con las muestras de sigma 
+df_muestras_sigma <- df_muestras_md_log |> filter(paso > 5000)
+
+```
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+# BORRAR
+
+# Grafica las 4 trazas
+graficar_trazas_md(df_muestras_mu, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+```
+
+
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+
+set.seed(0398)
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_mu$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+# Imprimir la tabla usando kable con opciones de kableExtra
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(2, width = "3cm")
+```
+
+
+```{r ,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
+#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
+graficar_distribucion(
+  exp(muestras_theta_estrella_oz[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
+  x_grid = 7, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.4,  #igual que arriba
+  color = "orange", #cambiar gama de colores para los parametros mu y sigma
+  xlab = "sigma",
+  ylab = NULL)
+```
+
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+#Traceplot de sigma estrella
+plot_trace(exp(muestras_theta_estrella_oz[ ,2]), color = "orange", ylab = "sigma")
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+# Grafica las 4 trazas
+df_muestras_sigma_trp <- df_muestras_sigma
+df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
+graficar_trazas_md(df_muestras_sigma_trp, ylab = "sigma", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+```
+
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+set.seed(0398)
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_sigma_trp$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+# Imprimir la tabla usando kable con opciones de kableExtra
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(2, width = "3cm")
+```
+
+# CONTROL T STUDEN
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+set.seed(0398)
+# Entrada parametros = mu_o, sigma_oz, mu_c, sigma_c
+# matriz de varianza y covarianza
+sigma <- matrix(c(1.3^2   , 0   ,
+                  0     , 0.15^2 ), nrow = 2)  # Propuesto en clase 0.05^2
+
+
+# Obtener muestras
+muestras_theta_estrella_c <- metropolis_hastings_log(
+  logp = logp_cont_t,
+  x = c(2,log(15)), # propuesto en clase 0 y log(1.5)
+  n = 5000,
+  sigma = sigma
+)
+```
+
+
+```{r ,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+#histograma que muestra la dist a posteriori marginal de mu
+graficar_distribucion(
+  muestras_theta_estrella_c[ ,1], #[1000:10000]
+  x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.4,
+  color = "green", #cambiar gama de colores para los parametros mu y sigma
+  xlab = "μ_c",
+  ylab = NULL)
+# es un histograma que representa la distribucion aposteriori marginal de mu
+```
+
+
+
+mostramos su traceplot
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+#traceplot de mu
+plot_trace(muestras_theta_estrella_c[ ,1], color = "green", ylab = "mu")
+```
+
+se concluye brevemente cada uno de los graficos y sus traceplot y luego realizamos las medidas de diagnostico sobre cada parametro
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+set.seed(0398)
+# Creamos una lista para guardar 4 cadenas del vector de parametros
+muestras_md_log_c <- list()
+n_cadenas <- 4
+sigma <- matrix(c(1.3^2   , 0   ,
+                  0     , 0.15^2 ), nrow = 2) #mejores valores 1.3 y 0.15
+
+# Se llama a la función `metropolis_hastings_normal` y se guardan los resultados en una lista.
+for (j in seq_len(n_cadenas)) {
+  muestras_md_log_c[[j]] <- metropolis_hastings_log(
+    logp = logp_cont_t,
+    x = c(2,log(15)),
+    n = 5000,
+    sigma = sigma
+  )
+}
+
+# creamos un data frame para poder graficar
+df_muestras_md_log <- crear_df_muestras(muestras_md_log_c)
+
+#dataframe con las muestras de mu
+df_muestras_mu <- df_muestras_md_log |> filter(paso <= 5000)
+
+
+#dataframe con las muestras de sigma 
+df_muestras_sigma <- df_muestras_md_log |> filter(paso > 5000)
+
+```
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+# BORRAR
+
+# Grafica las 4 trazas
+graficar_trazas_md(df_muestras_mu, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+```
+
+
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+
+set.seed(0398)
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_mu$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+# Imprimir la tabla usando kable con opciones de kableExtra
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(2, width = "3cm")
+```
+
+
+```{r ,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
+#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
+graficar_distribucion(
+  exp(muestras_theta_estrella_c[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
+  x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.4,  #igual que arriba
+  color = "orange", #cambiar gama de colores para los parametros mu y sigma
+  xlab = "sigma",
+  ylab = NULL)
+```
+
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+#Traceplot de sigma estrella
+plot_trace(exp(muestras_theta_estrella_c[ ,2]), color = "orange", ylab = "sigma")
+```
+
+
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+# Grafica las 4 trazas
+df_muestras_sigma_trp <- df_muestras_sigma
+df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
+graficar_trazas_md(df_muestras_sigma_trp, ylab = "sigma", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+```
+
+```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+set.seed(0398)
+# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+muestras_matriz <- matrix(df_muestras_sigma_trp$valor, ncol = n_cadenas, byrow = FALSE)
+
+
+# Calculamos las medidas de diagnostico
+
+R_hat <- calcular_R(muestras_matriz)
+n_effs <- apply(muestras_matriz, 2, calcular_n_eff) # Para cada columna, calcular N_eff
+n_eff <- sum(n_effs) # Sumar los N_eff de todas las cadenas
+
+# Crear un data frame para la tabla
+tabla_diagnostico <- data.frame(
+  Métrica = c("$\\hat{R}$", paste0("$N_{eff}$ Cadena ", 1:length(n_effs)), "$N_{eff}$ Total"),
+  Valor = c(R_hat, n_effs, n_eff)
+)
+
+# Imprimir la tabla usando kable con opciones de kableExtra
+kable(tabla_diagnostico,
+      col.names = c("Métrica", "Valor"),
+      caption = "Medidas de Diagnóstico del Algoritmo Metropolis-Hastings",
+      escape = FALSE,
+      booktabs = TRUE,
+      position = "H",
+      caption.placement = "bottom") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  column_spec(2, width = "3cm")
+```
