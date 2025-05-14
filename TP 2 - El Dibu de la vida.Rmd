@@ -1400,10 +1400,10 @@ log_posterior <- function(params, y_vector, normal = TRUE) {
   log_prior_mu2 <- dnorm(mu[2], mean = 0, sd = 1, log = TRUE)
   
   # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
-  log_prior_sigma1 <- dgamma(sigma[3], shape = 2, rate = 2, log = TRUE) + sigma_estrella
+  log_prior_sigma1 <- dgamma(sigma[3], shape = 2, rate = 2, log = TRUE) + sigma_estrella[1]
 
   # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
-  log_prior_sigma2 <- dgamma(sigma[4], shape = 2, rate = 2, log = TRUE) + sigma_estrella
+  log_prior_sigma2 <- dgamma(sigma[4], shape = 2, rate = 2, log = TRUE) + sigma_estrella[2]
   
   # Log-posterior no normalizado
   log_posterior_value <- log_likelihood + log_prior_mu1 + log_prior_mu2 + log_prior_sigma1 + log_prior_sigma2
