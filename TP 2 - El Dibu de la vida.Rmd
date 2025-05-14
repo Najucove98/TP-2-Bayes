@@ -1270,43 +1270,81 @@ $$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \boldsymbol{y}) \propto\left[ \sum_{i
       
 
 ```{r}
-#Distinta por grupo
-# Función de densidad posterior en escala logarítmica (sin normalizar)
-log_posterior_tarkington <- function(params, y_vector, normal = TRUE) {
-  # 'params' tiene longitud 4
-  mu <- params[1:2]
-  sigma_estrella <- params[3:4]
-  sigma <- exp(sigma_estrella) # Salida sigma debe ser positiva
+datos_oz
+datos_control
 
-  if(normal == T){
+# Función de densidad posterior en escala logarítmica (Ozono)
+log_posterior_oz <- function(params, y_vector, normal = TRUE) {
+  # 'params' tiene longitud 4
+  mu_oz <- params[1]
+  sigma_estrella_oz <- params[2]
+  sigma_oz <- exp(sigma_estrella_oz) # Salida sigma debe ser positiva
   
+  if(normal == T){
+    
     # Log-verosimilitud (asumiendo datos independientes)
-    log_likelihood <- sum(dnorm(y_vector, mean = mu, sd = sigma, log = TRUE))
+    log_likelihood_oz <- sum(dnorm(y_vector, mean = mu_oz, sd = sigma_oz, log = TRUE))
     
   } else {
     # Log-verosimilitud (asumiendo datos independientes)
-    log_likelihood <- sum(dt(y_vector, mean = mu, sd = sigma, log = TRUE))
-
+    log_likelihood_oz <- sum(dt(y_vector, mean = mu_oz, sd = sigma_oz, log = TRUE))
+    
   }
-
+  
   # Log-prior de mu
-  log_prior_mu1 <- dnorm(mu[1], mean = 0, sd = 1, log = TRUE)
-
-  # Log-prior de mu
-  log_prior_mu2 <- dnorm(mu[2], mean = 0, sd = 1, log = TRUE)
+  log_prior_mu_oz <- dnorm(mu_oz , mean = 0, sd = 1, log = TRUE)
   
   # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
-  log_prior_sigma1 <- dgamma(sigma[3], shape = 2, rate = 2, log = TRUE) + sigma_estrella[1]
-
-  # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
-  log_prior_sigma2 <- dgamma(sigma[4], shape = 2, rate = 2, log = TRUE) + sigma_estrella[2]
+  log_prior_sigma_oz <- dgamma(sigma_oz, shape = 2, rate = 2, log = TRUE) 
   
   # Log-posterior no normalizado
-  log_posterior_value <- log_likelihood + log_prior_mu1 + log_prior_mu2 + log_prior_sigma1 + log_prior_sigma2
-
+  log_posterior_value <- log_likelihood_oz + log_prior_mu_oz + log_prior_sigma_oz + sigma_estrella_oz
+  
   return(log_posterior_value)
 }
 
+
+# Función de densidad posterior en escala logarítmica (Control)
+log_posterior_cont <- function(params, y_vector, normal = T) {
+  # 'params' tiene longitud 4
+  mu_cont <- params[1]
+  sigma_estrella_cont <- params[2]
+  sigma_cont <- exp(sigma_estrella_cont) # Salida sigma debe ser positiva
+  
+  if(normal == T){
+    
+    # Log-verosimilitud (asumiendo datos independientes)
+    log_likelihood_cont <- sum(dnorm(y_vector, mean = mu_cont, sd = sigma_cont, log = TRUE))
+    
+  } else {
+    # Log-verosimilitud (asumiendo datos independientes)
+    log_likelihood_cont <- sum(dt(y_vector, mean = mu_cont, sd = sigma_cont, log = TRUE))
+    
+  }
+  
+  # Log-prior de mu
+  log_prior_mu_cont <- dnorm(mu_cont , mean = 0, sd = 1, log = TRUE)
+  
+  # Log-prior de sigma (transformado) - Incluyendo el Jacobiano
+  log_prior_sigma_cont <- dgamma(sigma_cont, shape = 2, rate = 2, log = TRUE) 
+  
+  # Log-posterior no normalizado
+  log_posterior_value <- log_likelihood_cont + log_prior_mu_cont + log_prior_sigma_cont + sigma_estrella_cont
+  
+  return(log_posterior_value)
+}
+
+logp_oz <- partial(log_posterior_oz, y_vector = y_datos)
+
+logp_cont <- partial(log_posterior_cont, y_vector = y_datos)
+
+
+
+log_posterior_general <- function(params){
+  params1 <- params[1:2]
+  params2 <- params[3:4]
+  return(log_posterior_oz(params1) + log_posterior_cont(params2))
+}
 ```
 
 En este item deberia ser prudente mostrar el vector de parametros de inicio y la matriz de varianzas y covarianzas donde la matriz de 4x4 deberia tener un valor para los mu y un valor para los sigma para que la funcion pueda converger 
