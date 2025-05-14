@@ -649,7 +649,9 @@ Como se puede observar en la @ref(fig:f7), la distribución empírica parece hab
 
 La implementación efectiva del algoritmo de Metropolis-Hastings, se enfrenta a desafíos computacionales relacionados con la magnitud de los números involucrados. Un obstáculo surge al evaluar la función de densidad objetivo en cada iteración del algoritmo. Esta función, que guía el proceso de muestreo hacia las regiones de mayor probabilidad, puede implicar la multiplicación de numerosos términos, especialmente cuando se modelan datos con múltiples observaciones. Si estos términos son pequeños, su producto puede rápidamente volverse tan pequeño que la computadora lo representa como cero, es decir se produce el  fenómeno conocido como underflow. Este fenómeno dificulta la correcta ejecución del algoritmo de Metropolis-Hastings ya que puede conducir a errores que interrumpen el proceso de muestreo, impidiendo la obtención de las muestras necesarias para realizar inferencias válidas. Incluso si el programa no se detiene, un underflow puede resultar en la aceptación o rechazo incorrecto de valores propuestos, desviando la cadena de Markov de la distribución objetivo real y disminuyendo la fiabilidad de los resultados. Además, como el algoritmo evalúa la densidad objetivo en diferentes puntos del espacio paramétrico, la probabilidad de encontrar estas situaciones problemáticas se multiplica.
 Una solución práctica es el uso de la escala logarítmica, al trabajar con los logaritmos de las probabilidades en lugar de las probabilidades directas, las operaciones de multiplicación se convierten en sumas y las divisiones se transforman en restas. Lo cual evita la utilización de números extremadamente pequeños, estabilizando los cálculos dentro del algoritmo de Metropolis-Hastings. 
+
 A continuación, se implementó con el método de metropolis hastings en escala logarítmica la obtención de muestras de la variable X.
+
 
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -754,12 +756,11 @@ muestralog <- metropolis_hastings_log(
 )
 ```
 
-```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap=c("(\\#fig:grafico1) Gráfico de dispersión", "(\\#fig:grafico2) Histograma de mpg"),fig.show='hold', out.width='50%'}
+```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE}
 # Muestras de X transformando la muestra de Y
 muestras_x <- exp(muestralog)
 graficar_distribucion(muestras_x, grid_x, grid_px, ylab = TeX("$f_X(x)$"), color = "#3b78b0", color_l = "#3b78b0")
 
-graficar_traza(muestras_x, color = "#3b78b0")  
 ```
 
 
@@ -1199,6 +1200,7 @@ grid.arrange(plot_oz_hist, plot_oz_box, ncol = 2)
 
 ## Modificada por chatgpt
 En base a las medidas descriptivas obtenidas, se observa una diferencia considerable entre el cambio de peso en las ratas del grupo control y en las ratas expuestas a ozono.El cambio de peso medio en las ratas expuestas a ozono representa aproximadamente la mitad del registrado en las ratas del grupo control, lo que indica una reducción en la ganancia de peso atribuible a la exposición al ozono.
+
 
 Asimismo, el análisis mediante diagramas de caja (boxplots) revela que la distribución del cambio de peso en las ratas del grupo ozono presenta una asimetría hacia la izquierda, lo cual sugiere la presencia de valores más bajos en comparación con la mediana. 
 En contraste, el cambio de peso en las ratas del grupo control muestra una distribución más concentrada, lo que indica una mayor homogeneidad en los datos de ese grupo.
