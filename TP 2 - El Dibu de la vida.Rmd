@@ -1182,10 +1182,10 @@ En base a las medidas descriptivas obtenidas, se observa una diferencia consider
 Asimismo, el análisis mediante diagramas de caja (boxplots) revela que la distribución del cambio de peso en las ratas del grupo ozono presenta una asimetría hacia la izquierda, lo cual sugiere la presencia de valores más bajos en comparación con la mediana. 
 En contraste, el cambio de peso en las ratas del grupo control muestra una distribución más concentrada, lo que indica una mayor homogeneidad en los datos de ese grupo.
 
+\newpage
 
 
-
-## item 7
+# item 7
 
 ## Diferencias entre la distribución normal y la t de Student con 3 grados de libertad:
 Dadas una misma media y varianza, tanto la distribución normal como la t de Student con 3 grados de libertad son simétricas respecto a su media. Sin embargo, presentan diferencias importantes:
@@ -1237,11 +1237,37 @@ ggplot(prueba, aes(x = valores, y = den_norm)) +
 ```
 
 
-#ITEM 8
+\newpage
+
+
+# ITEM 8
 funcion del posterior generalizado en base logaritmica para eficiencia "computacional"
 aca iria una introduccion y la formula del posterior para cada modelo
 
-
+La distribución a posteriori conjunta de los parámetros $\theta = \{\mu_o,\mu_c, \sigma_o, \sigma_c\}$ dado los datos $y$ se obtiene mediante la regla de Bayes:
+  $$p(\mu_o,\mu_c, \sigma_o, \sigma_c\ | \boldsymbol{y}) = \frac{p(\boldsymbol{y} | \mu_o,\mu_c, \sigma_o, \sigma_c). p(\mu_o,\mu_c, \sigma_o, \sigma_c)}{p(\boldsymbol{y})} \propto p( \boldsymbol{y}  \text{ | } \mu_o,\mu_c, \sigma_o, \sigma_c).p(\mu_o,\mu_c, \sigma_o, \sigma_c)$$
+    donde $p_y(\boldsymbol{y} | \mu_o,\mu_c, \sigma_o, \sigma_c)$ es la verosimilitud de los datos dado los parámetros, $p(\mu_o,\mu_c, \sigma_o, \sigma_c) = p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o}(\sigma_o) p_{\sigma_c}(\sigma_c)$ es la distribución a priori conjunta de los parámetros (asumiendo independencia entre $\mu_c , \mu_o$ y $\sigma_c , \sigma_o$).
+    
+La distribución a priori conjunta es el producto de las distribuciones a priori individuales:
+$$p(\mu_o,\mu_c, \sigma_o, \sigma_c) = p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o}(\sigma_o) p_{\sigma_c}(\sigma_c)$$
+      
+### Transformación a Espacio No Acotado
+      
+Un posible problema para la deducción analítica del posterior es el dominio de $\sigma$ ($\mathbb{R}^+$). Para facilitar el muestreo o la optimización, a menudo se realiza una transformación a un espacio no acotado. En este caso, se propone la transformación $\theta^* = \{\mu_o,\mu_c, \sigma_o, \sigma_c\} \in \mathbb{R} \times \mathbb{R} \times \mathbb{R^+} \times \mathbb{R^+}$.
+    
+La relación entre $\sigma_o, \sigma_c$ y $\sigma_o^*, \sigma_c^*$ es $\sigma_0 = \exp(\sigma_o^*) \ \sigma_c = \exp(\sigma_c^*)$
+      
+### Función de Densidad del Posterior Transformado
+      
+La función de densidad del posterior en el espacio transformado resulta:
+      
+$$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \boldsymbol{y}) \propto p( \boldsymbol{y}  \text{ | } \mu_o,\mu_c, \sigma_o, \sigma_c).p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o^*}(\sigma_o^*) p_{\sigma_c^*}(\sigma_c^*)$$
+$$\text{Teniendo en cuando la transformacion de }\sigma_o^*, \sigma_c^* \text{ tenemos:}$$
+$$p_\sigma^*(exp(\sigma_o^*),exp(\sigma_c^*))*\exp(\sigma_o^*)*exp(\sigma_c^*) $$
+$$\text{De esta forma la función de densidad del posterior trasnformado resulta:}$$
+$$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \boldsymbol{y}) \propto\left[ \sum_{i = 1}^{N} P_y(y_i \mid \mu_o, \mu_c,\exp(\sigma_o^*)*exp(\sigma_c^*))\right] + \log{P_{\mu_o}(\mu_o)} + P_{\sigma_o}^*(exp(\sigma_o^*)) + \sigma_o^* + \log{P_{\mu_c}(\mu_c)} + P_{\sigma_c}^*(exp(\sigma_c^*)) + \sigma_c^*$$
+      
+      
 
 ```{r}
 #Distinta por grupo
