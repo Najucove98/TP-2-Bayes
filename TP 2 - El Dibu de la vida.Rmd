@@ -1293,17 +1293,23 @@ Un posible problema para la deducción analítica del posterior es el dominio de
 La relación entre $\sigma_o, \sigma_c$ y $\sigma_o^*, \sigma_c^*$ es $\sigma_0 = \exp(\sigma_o^*) \ \sigma_c = \exp(\sigma_c^*)$
       
 ### Función de Densidad del Posterior Transformado
-      
+
 La función de densidad del posterior en el espacio transformado resulta:
       
-$$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \boldsymbol{y}) \propto p( \boldsymbol{y}  \text{ | } \mu_o,\mu_c, \sigma_o, \sigma_c).p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o^*}(\sigma_o^*) p_{\sigma_c^*}(\sigma_c^*)$$
+$$p(\mu_o,\mu_c, \sigma_o^, \sigma_c^\ | \textbf{y}) \propto p( \textbf{y}  \text{ | } \mu_o,\mu_c, \sigma_o, \sigma_c).p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o^}(\sigma_o^) p_{\sigma_c^}(\sigma_c^)$$
 
-$$\text{Teniendo en cuando la transformacion de }\sigma_o^*, \sigma_c^* \text{ tenemos:}$$
+$$\text{Teniendo en cuando la transformacion de }\sigma_o^, \sigma_c^ \text{ tenemos:}$$
 
-$$p_\sigma^*(exp(\sigma_o^*),exp(\sigma_c^*))*\exp(\sigma_o^*)*exp(\sigma_c^*) $$
+$$p_\sigma^(exp(\sigma_o^),exp(\sigma_c^))\exp(\sigma_o^)*exp(\sigma_c^) $$
 
-$$\text{De esta forma la función de densidad del posterior trasnformado resulta:}$$
-$$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \boldsymbol{y}) \propto\left[ \sum_{i = 1}^{N} p_y(y_i \mid \mu_o, \mu_c,\exp(\sigma_o^*)*exp(\sigma_c^*))\right] + \log{p_{\mu_o}(\mu_o)} + p_{\sigma_o}^*(exp(\sigma_o^*)) + \sigma_o^* + \log{p_{\mu_c}(\mu_c)} + p_{\sigma_c}^*(exp(\sigma_c^*)) + \sigma_c^*$$
+$$\text{De esta forma la función de densidad del posterior transformado resulta:}$$
+
+$$p(\mu_o,\mu_c, \sigma_o^, \sigma_c^\ | \textbf{y}) \propto\left[ \prod_{i = 1}^{N} p_y(y_i \mid \mu_o,\mu_c,\exp(\sigma_o^, \sigma_c^))\right].p_{\mu_o}(\mu_o) . p_{\mu_c}(\mu_c). p_{\sigma_o}^(exp(\sigma_o^)) . p_{\sigma_c}^(exp(\sigma_c^)) . \sigma_c^* . \sigma_o^*$$
+
+$$\text{Aplicando logaritmo resulta:}$$
+
+
+$$p(\mu_o,\mu_c, \sigma_o^, \sigma_c^\ | \textbf{y}) \propto\left[ \sum_{i = 1}^{N} p_y(y_i \mid \mu_o, \mu_c,\exp(\sigma_o^)*exp(\sigma_c^))\right] + \log{p_{\mu_o}(\mu_o)} + p_{\sigma_o}^(exp(\sigma_o^)) + \sigma_o^* + \log{p_{\mu_c}(\mu_c)} + p_{\sigma_c}^(exp(\sigma_c^)) + \sigma_c^*$$
       
       
 
