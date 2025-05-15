@@ -1417,6 +1417,16 @@ graficar_distribucion(
 ```
 
 
+```{r f20,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
+#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
+graficar_distribucion(
+  exp(muestras_theta_estrella_oz[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
+  x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.4,  #igual que arriba
+  color = "orange", #cambiar gama de colores para los parametros mu y sigma
+  xlab = TeX("$\\sigma_O$"),
+  ylab = NULL)
+```
 
 ```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
@@ -1481,20 +1491,6 @@ kable(tabla_diagnostico,
   column_spec(2, width = "3cm")
 ```
 
-
-```{r f20,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
-#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
-graficar_distribucion(
-  exp(muestras_theta_estrella_oz[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
-  x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
-  p_grid = 0.4,  #igual que arriba
-  color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$\\sigma_O$"),
-  ylab = NULL)
-```
-
-El análisis de las medidas de diagnóstico en las Tablas 8 y 9, correspondientes a los posteriores de $\mu$ y $\sigma$ del grupo expuesto al ozono, señala que las muestras del $posterior$ de $\mu$ para este grupo presentan la mejor calidad en comparación con otras pruebas. Esto se sustenta en un valor de $\hat{R}$ próximo a la unidad y el tamaño efectivo de muestra más elevado observado.Además en las figuras @ref(fig:f19) y @ref(fig:f20), se exhiben dichas muestras de los $posteriors$ obtenidas, dónde se nota una forma campanular de descenso rápido, lo que coincide con lo comentado en el análisis de la normal y t de student con media y varianzas iguales
-
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 df_muestras_sigma_trp <- df_muestras_sigma
 df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
@@ -1526,6 +1522,12 @@ kable(tabla_diagnostico,
   column_spec(2, width = "3cm")
 ```
 
+
+El análisis de las medidas de diagnóstico en las Tablas 8 y 9, correspondientes a los posteriores de $\mu$ y $\sigma$ del grupo expuesto al ozono, señala que las muestras del $posterior$ de $\mu$ para este grupo presentan la mejor calidad en comparación con otras pruebas. Esto se sustenta en un valor de $\hat{R}$ próximo a la unidad y el tamaño efectivo de muestra más elevado observado.Además en las figuras @ref(fig:f19) y @ref(fig:f20), se exhiben dichas muestras de los $posteriors$ obtenidas, dónde se nota una forma campanular de descenso rápido, lo que coincide con lo comentado en el análisis de la normal y t de student con media y varianzas iguales.
+
+
+
+
 ## Posteriors para $\mu$ y $\sigma$ en el grupo de control bajo un modelo normal
 
 
@@ -1548,7 +1550,7 @@ muestras_theta_estrella_c <- metropolis_hastings_log(
 ```
 
 
-```{r ,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+```{r f21,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
 #histograma que muestra la dist a posteriori marginal de mu
 graficar_distribucion(
   muestras_theta_estrella_c[ ,1], #[1000:10000]
@@ -1560,6 +1562,16 @@ graficar_distribucion(
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
 
+```{r f22,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
+#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
+graficar_distribucion(
+  exp(muestras_theta_estrella_c[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
+  x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.4,  #igual que arriba
+  color = "orange", #cambiar gama de colores para los parametros mu y sigma
+  xlab = TeX("$\\sigma_C$"),
+  ylab = NULL)
+```
 
 ```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
@@ -1624,16 +1636,7 @@ kable(tabla_diagnostico,
 ```
 
 
-```{r ,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
-#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
-graficar_distribucion(
-  exp(muestras_theta_estrella_c[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
-  x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
-  p_grid = 0.4,  #igual que arriba
-  color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$\\sigma_C$"),
-  ylab = NULL)
-```
+
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 df_muestras_sigma_trp <- df_muestras_sigma
@@ -1667,17 +1670,19 @@ kable(tabla_diagnostico,
 ```
 
 
-La evaluación de las Tablas 10 y 11, que resumen las medidas de diagnóstico para las distribuciones a posteriori de μ y σ en el grupo de control, indica que las muestras obtenidas para el posterior de μ en este grupo son las más apropiadas para la inferencia. Esta conclusión se basa en un valor de R^ cercano a 1, que sugiere una buena convergencia, y en el mayor tamaño efectivo de muestra hallado, lo que implica una menor autocorrelación de las muestras de mu y sigma  del grupo de control.
+La evaluación de las Tablas 10 y 11, que resumen las medidas de diagnóstico para las distribuciones a posteriori de $\mu$ y $\sigma$ en el grupo de control, indica que las muestras obtenidas para el $posterior$ de $\mu$ en este grupo son las más apropiadas para la inferencia. Esta conclusión se basa en un valor de $\hat{R}$ cercano a 1, que sugiere una buena convergencia, y en el mayor tamaño efectivo de muestra hallado, lo que implica una menor autocorrelación de las muestras de mu y sigma  del grupo de control.
 
-A partir de las figuras 18, 20, 22 y 24 se puede observar que las muestras de los posterior de  mu y sigma de los grupos de control y de ratas expuestas al ozono presentan una forma acampanada, lo que se condice con la utilización de un modelo normal. 
+A partir de las figuras @ref(fig:f19), @ref(fig:f20), @ref(fig:f21) y @ref(fig:f22) se puede observar que las muestras de los posterior de  mu y sigma de los grupos de control y de ratas expuestas al ozono presentan una forma acampanada, lo que se condice con la utilización de un modelo normal. 
 
-Se observa que la distribución a posteriori de μ para el grupo de ozono parece estar ligeramente desplazada hacia valores más bajos en comparación con el grupo control, lo que sugiere que el aumento de peso de las ratas expuestas al ozono es menor que las ratas del control. Además el ancho de los histogramas de mu en ambos grupos sugiere una mayor incertidumbre respecto al valor medio del cambio de peso de las ratas, sin importar el grupo al que pertenecen.
+Se observa que la distribución a $posteriori$ de $\sigma$ para el grupo de ozono parece estar ligeramente desplazada hacia valores más bajos en comparación con el grupo control, lo que sugiere que el aumento de peso de las ratas expuestas al ozono es menor que las ratas del control. Además el ancho de los histogramas de mu en ambos grupos sugiere una mayor incertidumbre respecto al valor medio del cambio de peso de las ratas, sin importar el grupo al que pertenecen.
 Al observar la ubicación del centro de las distribuciones de los posteriors de sigma de ambos grupos parecen ser similares en referencia al rango de variación de los mismos y su dispersión, lo que sugiere que la incertidumbre respecto a la variabilidad del aumento de peso en las ratas es igual en ambos grupos.
 
 
 
-# OZONO T STUDENT
-```{r}
+## Posteriors para $\mu$ y $\sigma$ en el grupo de ozono bajo un modelo t-student
+
+
+```{r, echo=FALSE}
 logp_oz_t <- partial(log_posterior_oz, y_vector = datos_oz$gain, normal = F)
 
 logp_cont_t <- partial(log_posterior_cont, y_vector = datos_control$gain, normal = F)
@@ -1701,7 +1706,7 @@ muestras_theta_estrella_oz <- metropolis_hastings_log(
 ```
 
 
-```{r ,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+```{r f23,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
 #histograma que muestra la dist a posteriori marginal de mu
 graficar_distribucion(
   muestras_theta_estrella_oz[ ,1], #[1000:10000]
@@ -1744,7 +1749,16 @@ df_muestras_sigma <- df_muestras_md_log |> filter(paso > 5000)
 
 ```
 
-
+```{r f24,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
+#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
+graficar_distribucion(
+  exp(muestras_theta_estrella_oz[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
+  x_grid = 7, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.4,  #igual que arriba
+  color = "orange", #cambiar gama de colores para los parametros mu y sigma
+  xlab = TeX("$\\sigma_O$"),
+  ylab = NULL)
+```
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 
@@ -1778,16 +1792,7 @@ kable(tabla_diagnostico,
 ```
 
 
-```{r ,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
-#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
-graficar_distribucion(
-  exp(muestras_theta_estrella_oz[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
-  x_grid = 7, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
-  p_grid = 0.4,  #igual que arriba
-  color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$\\sigma_O$"),
-  ylab = NULL)
-```
+
 
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
@@ -1820,7 +1825,12 @@ kable(tabla_diagnostico,
   column_spec(2, width = "3cm")
 ```
 
-# CONTROL T STUDEN
+Las tablas 12 y 13 muestran las medidas de diagnóstico correspondientes a las muestras de los $posterior$ de $\mu$ y $\sigma$ del grupo de ratas expuestas al ozono bajo un modelo T de Student. Donde se muestra que el tamaño de muestra efectivo más adecuado de las muestras comparadas de este grupo fueron de 2807.6 para $\mu$ y 1956.63 de $\sigma$. Ambas tablas muestran que las cadenas de markov convergieron a la misma distribución.
+
+
+
+## Posteriors para $\mu$ y $\sigma$ en el grupo de control bajo un modelo t-student
+
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 set.seed(0398)
@@ -1840,7 +1850,7 @@ muestras_theta_estrella_c <- metropolis_hastings_log(
 ```
 
 
-```{r ,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+```{r f25,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
 #histograma que muestra la dist a posteriori marginal de mu
 graficar_distribucion(
   muestras_theta_estrella_c[ ,1], #[1000:10000]
@@ -1852,6 +1862,17 @@ graficar_distribucion(
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
 
+
+```{r f26,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
+#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
+graficar_distribucion(
+  exp(muestras_theta_estrella_c[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
+  x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
+  p_grid = 0.4,  #igual que arriba
+  color = "orange", #cambiar gama de colores para los parametros mu y sigma
+  xlab = TeX("$\\sigma_C$"),
+  ylab = NULL)
+```
 
 ```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
@@ -1916,16 +1937,7 @@ kable(tabla_diagnostico,
 ```
 
 
-```{r ,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
-#histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
-graficar_distribucion(
-  exp(muestras_theta_estrella_c[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
-  x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
-  p_grid = 0.4,  #igual que arriba
-  color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$\\sigma_C$"),
-  ylab = NULL)
-```
+
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 df_muestras_sigma_trp <- df_muestras_sigma
@@ -1956,3 +1968,30 @@ kable(tabla_diagnostico,
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   column_spec(2, width = "3cm")
 ```
+
+
+Como se muestra en las tablas 14 y 15, las medidas de diagnóstico del $posterior$ de los parámetros $\mu$ y $\sigma$ del grupo de control sujeto a un modelo t de student presentan un tamaño efectivo de muestra de 2475.59 para $\mu$ y 2301.9 para $\sigma$, destacándose la convergencia en ambos casos de las cadenas de markov, representado por el valor de $\hat{R}$. 
+
+
+Además se consideró que la utilización de las muestras de los cuatro $posterior$ mencionados fue la adecuada ya que al probar diferentes valores iniciales y de desvío en la mayoría de los casos mejoraba ligeramente  el tamaño efectivo de muestra pero se perdía la convergencia de las cadenas de markov. Por lo que se prefirió contar con un tamaño de muestra más pequeño pero conservar dicha convergencia en todos los posterior.
+
+
+A partir de las Figuras @ref(fig:f21), @ref(fig:f22), @ref(fig:f23) y @ref(fig:f24), se observa que las distribuciones a posteriori de $\mu$ y $\sigma$ para los grupos de control y de ratas expuestas al ozono también presentan una forma de campana y aproximadamente simétrica, lo cual es consistente con lo esperado bajo un modelo T de Student. Sin embargo, en contraposición con las distribuciones obtenidas bajo el modelo normal, se podría evaluar si estas distribuciones exhiben colas ligeramente más pesadas.
+
+
+Al observar las distribuciones a posteriori de $\mu$, mostradas por las Figuras @ref(fig:f21) y @ref(fig:f23), sugiere que la media del cambio de peso para el grupo de ozono podría estar desplazada hacia valores más bajos en relación con el grupo control, lo que implicaría un menor aumento de peso en las ratas expuestas al ozono. La dispersión observada en los histogramas de μ para ambos grupos señala la incertidumbre en la estimación de la media del cambio de peso.
+
+
+En cuanto a las distribuciones a posteriori de $\sigma$, exhibidas en las Figuras @ref(fig:f22) y @ref(fig:f24), que representan la desviación estándar de ambos grupos de ratas, se nota una ubicación y dispersión relativamente similar entre ellos, lo que sugiere incertidumbre similar en la variabilidad del cambio de peso.
+
+
+
+# Conclusión final
+
+Para finalizar el análisis del efecto de la exposición al ozono de las ratas, se pudo concluir que existe una indicación de que la media del cambio de peso para el grupo de ratas expuestas al ozono ($\mu_C$) tiende a ser menor en comparación con el grupo control ($\mu_C$). Esto soporta la hipótesis de que la exposición al ozono se asocia con un menor incremento de peso en las ratas. Además, la dispersión observada en las distribuciones a posteriori de $\mu$ para ambos grupos sugieren que existe una incertidumbre considerable en la estimación precisa de la media del cambio de peso, independientemente de la exposición al ozono.
+
+La ubicación y dispersión similares de las distribuciones a posteriori de $\sigma$ entre los grupos sugieren que la incertidumbre respecto a la variabilidad del cambio de peso dentro de cada grupo es comparable, independientemente de la exposición al ozono.
+
+Ambos modelos bayesianos, el Normal y el T de Student con 3 grados de libertad, sugirieron los mismos resultados respecto al efecto del ozono, sugieren una tendencia hacia un menor aumento de peso en las ratas expuestas al ozono. Además, ambos modelos reflejan una incertidumbre similar tanto en la estimación de la media como en la variabilidad del cambio de peso entre los grupos.
+
+En resumen, la similitud en las conclusiones sugiere que, para el conjunto de datos, las características que diferencian la distribución normal de la T de Student con 3 grados de libertad, de la Normal, principalmente las colas más pesadas no están influyendo de manera drástica en las inferencias sobre la media y la variabilidad de los grupos. Los datos podrían no presentar suficientes valores atípicos como para que la robustez de la T de Student marque una diferencia sustancial en las conclusiones sobre el efecto principal.
