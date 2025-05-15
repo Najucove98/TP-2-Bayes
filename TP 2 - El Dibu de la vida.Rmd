@@ -1145,8 +1145,12 @@ kable(tabla_medidas_oz,
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 # Graficos descriptivos
-plot_con_hist <- ggplot(datos_control, aes(x = gain, color = "#87CEEB"))+
-  geom_histogram(bins = 22)+
+plot_con_hist <- ggplot(datos_control, aes(x = gain))+
+  geom_histogram(
+    bins = 22,
+    fill = "#87CEEB",
+    color = "grey20",
+    linewidth = 0.1)+
   labs(y = "Frecuencia")+
   theme_bw() +
   theme(
@@ -1157,8 +1161,11 @@ plot_con_hist <- ggplot(datos_control, aes(x = gain, color = "#87CEEB"))+
       legend.position = "none"
     )
 
-plot_con_box <-ggplot(datos_control, aes(y = gain, color = "#87CEEB"))+
-  geom_boxplot()+
+plot_con_box <-ggplot(datos_control, aes(y = gain))+
+  geom_boxplot(
+    fill = "#87CEEB",
+    linewidth = 0.1
+  )+
   labs(y = "Gain")+
   theme_bw() +
   theme(
@@ -1170,8 +1177,12 @@ plot_con_box <-ggplot(datos_control, aes(y = gain, color = "#87CEEB"))+
     )
 
 # Graficos descriptivos
-plot_oz_hist <-ggplot(datos_oz, aes(x = gain, color = "#FFA07A"))+
-  geom_histogram(bins = 22)+
+plot_oz_hist <-ggplot(datos_oz, aes(x = gain))+
+  geom_histogram(
+    bins = 22,
+    fill = "#FFA07A",
+    color = "grey20",
+    linewidth = 0.1)+
   labs(y = "Frecuencia")+
   theme_bw() +
   theme(
@@ -1182,8 +1193,10 @@ plot_oz_hist <-ggplot(datos_oz, aes(x = gain, color = "#FFA07A"))+
       legend.position = "none"
     )
 
-plot_oz_box <-ggplot(datos_oz, aes(y = gain, color = "#FFA07A"))+
-  geom_boxplot()+
+plot_oz_box <-ggplot(datos_oz, aes(y = gain))+
+  geom_boxplot(
+    fill = "#FFA07A",
+    linewidth = 0.1)+
   labs(y = "Gain")+
   theme_bw() +
   theme(
@@ -1196,12 +1209,12 @@ plot_oz_box <-ggplot(datos_oz, aes(y = gain, color = "#FFA07A"))+
 ```
 
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 7, fig.height = 3.5, fig.cap="Histograma y Boxplot para Control"}
+```{r f16,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 7, fig.height = 3.5, fig.cap="Histograma y Boxplot para Control"}
 grid.arrange(plot_con_hist, plot_con_box, ncol = 2)
 
 ```
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 7, fig.height = 3.5, fig.cap="Histograma y Boxplot para Ozono"}
+```{r f17,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 7, fig.height = 3.5, fig.cap="Histograma y Boxplot para Ozono"}
 grid.arrange(plot_oz_hist, plot_oz_box, ncol = 2)
 ```
 
