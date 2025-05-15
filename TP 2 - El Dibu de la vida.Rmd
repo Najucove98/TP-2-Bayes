@@ -1496,7 +1496,8 @@ graficar_distribucion(
 El análisis de las medidas de diagnóstico en las Tablas 8 y 9, correspondientes a los posteriores de $\mu$ y $\sigma$ del grupo expuesto al ozono, señala que las muestras del $posterior$ de $\mu$ para este grupo presentan la mejor calidad en comparación con otras pruebas. Esto se sustenta en un valor de $\hat{R}$ próximo a la unidad y el tamaño efectivo de muestra más elevado observado.Además en las figuras @ref(fig:f19) y @ref(fig:f20), se exhiben dichas muestras de los $posteriors$ obtenidas, dónde se nota una forma campanular de descenso rápido, lo que coincide con lo comentado en el análisis de la normal y t de student con media y varianzas iguales
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
-set.seed(0398)
+df_muestras_sigma_trp <- df_muestras_sigma
+df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_sigma_trp$valor, ncol = n_cadenas, byrow = FALSE)
 
@@ -1635,7 +1636,8 @@ graficar_distribucion(
 ```
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
-set.seed(0398)
+df_muestras_sigma_trp <- df_muestras_sigma
+df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_sigma_trp$valor, ncol = n_cadenas, byrow = FALSE)
 
@@ -1789,8 +1791,8 @@ graficar_distribucion(
 
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
-set.seed(0398)
-# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+df_muestras_sigma_trp <- df_muestras_sigma
+df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_sigma_trp$valor, ncol = n_cadenas, byrow = FALSE)
 
 
@@ -1926,8 +1928,8 @@ graficar_distribucion(
 ```
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
-set.seed(0398)
-# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
+df_muestras_sigma_trp <- df_muestras_sigma
+df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_sigma_trp$valor, ncol = n_cadenas, byrow = FALSE)
 
 
