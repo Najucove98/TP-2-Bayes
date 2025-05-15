@@ -505,7 +505,7 @@ graficar_trazas_md(df_muestras_md, ylab = "y", colors = c("#AEC6CF", "#F08080", 
 
 
 
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8}
+```{r t1,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md$valor, ncol = n_cadenas, byrow = FALSE)
@@ -574,7 +574,7 @@ traceplot2 <- graficar_trazas_md(df_muestras_md, ylab = "y", colors = c("#87CEEB
 traceplot2
 ```
 
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+```{r t2,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md$valor, ncol = n_cadenas, byrow = FALSE)
@@ -799,7 +799,7 @@ df_muestras_md_log <- crear_df_muestras(muestras_md_log)
 graficar_trazas_md(df_muestras_md_log, ylab = "x", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+```{r t3,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_md_log$valor, ncol = n_cadenas, byrow = FALSE)
 
@@ -906,7 +906,7 @@ log_posterior <- function(params, y_vector) {
 }
 ```
 
-Inicialmente, se corrieron dos cadenas de Markov, una para el parámetro $\mu$ y otra para el parámetro $\sigma$, y se evaluaron sus medidas de diagnóstico como el tamaño efectivo de muestra y el estadístico $\hat{R}$, que indica la convergencia de las cadenas de markov. Sin embargo, los resultados preliminares sugirieron la necesidad de explorar diferentes combinaciones para el vector de valores iniciales y la matrzi de variancia y covariancia $\sum$ de la distribución propuesta, buscando optimizar la calidad de las muestras obtenidas. 
+Inicialmente, se corrieron dos cadenas de Markov, una para el parámetro $\mu$ y otra para el parámetro $\sigma$, y se evaluaron sus medidas de diagnóstico como el tamaño efectivo de muestra y el estadístico $\hat{R}$, que indica la convergencia de las cadenas de markov. Sin embargo, los resultados preliminares sugirieron la necesidad de explorar diferentes combinaciones para el vector de valores iniciales y la matriz de variancia y covariancia $\sum$ de la distribución propuesta, buscando optimizar la calidad de las muestras obtenidas. 
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 # Utilizamos la muestra provista
@@ -934,7 +934,7 @@ muestras_theta_estrella <- metropolis_hastings_log(
 ```
 
 
-```{r 12,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+```{r f12,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
 #histograma que muestra la dist a posteriori marginal de mu
 graficar_distribucion(
   muestras_theta_estrella[ ,1], #[1000:10000]
@@ -946,7 +946,7 @@ graficar_distribucion(
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
 
-```{r f15a,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas del vector de parametros
 muestras_md_log <- list()
@@ -978,7 +978,7 @@ df_muestras_sigma <- df_muestras_md_log |> filter(paso > 10000)
 ```
 
 
-```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r f13,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 
 # Grafica las 4 trazas
 graficar_trazas_md(df_muestras_mu, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
@@ -1017,14 +1017,10 @@ kable(tabla_diagnostico,
   column_spec(2, width = "3cm")
 ```
 
-Nueva propuesta para mu contemplando que se uso una propuesta de una matriz diagonal de 0.05^2 y un inicio de 0.5 y log(1.5)
+Las muestras definitivas del $posterior$ de $\mu$, obtenidas con una propuesta de desvío de 0.12 y un valor inicial de 1 mostradas en la Figura @ref(fig:f12), presentan buenas medidas de diagnóstico. La Figura @ref(fig:f12) muestra una adecuada mezcla de las cadenas de Markov, convergiendo a una misma distribución, lo que se confirma, en al Tabla 4,  con un valor de $\hat{R}$ aproximado a 1. El tamaño efectivo de muestra resultante fue de 5072.55, indicando una baja autocorrelación en comparación con otras pruebas.
 
 
-
-
-Mejores resultados con un desvio de 0.12 y mismo valor inicial
-
-```{r ,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
+```{r f14,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
 #histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
 graficar_distribucion(
   exp(muestras_theta_estrella[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
@@ -1036,19 +1032,14 @@ graficar_distribucion(
 ```
 
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
-#Traceplot de sigma estrella
-plot_trace(exp(muestras_theta_estrella[ ,2]), color = "orange", ylab = "sigma")
-```
-
-```{r ,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r f15,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 # Grafica las 4 trazas
 df_muestras_sigma_trp <- df_muestras_sigma
 df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
 graficar_trazas_md(df_muestras_sigma_trp, ylab = "sigma", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
-```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+```{r t4,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
 muestras_matriz <- matrix(df_muestras_sigma_trp$valor, ncol = n_cadenas, byrow = FALSE)
@@ -1077,22 +1068,18 @@ kable(tabla_diagnostico,
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   column_spec(2, width = "3cm")
 ```
-NUEVA PROPUESTA
-
-la nueva propuesta de un desvio de 0.13 y valor inicial de log(0.75) parece ser una mejor opcion para obtener muestras de sigma
-
-
-Son muestras obtenidas a partir d ela distribucion log, cuando aun no
-habian convergido
 
 
 
-
-### El Gran Prix: ¿qué le decimos a Brian? {#Objetivo-3}
-
+En cuanto a $\sigma$, las muestras definitivas del $posterior$ mostrado en la Figura @ref(fig:f14), obtenidas con una propuesta de desvío de 0.13 y un valor inicial de 0.8, exhiben un $\hat{R}$ cercano a 1, lo que indica convergencia de las cadenas de markov  hacia una misma distribución, lo está corroborado visualmente en la Figura @ref(fig:f15). El tamaño efectivo de muestra para $\sigma$ fue de 6086.86, el más alto entre las propuestas comparadas.
 
 
-# item 6
+\newpage
+
+
+# Análisis exploratorio
+
+Con el objetivo de comprender las características generales del conjunto de datos, se llevó a cabo un análisis exploratorio inicial. Con el fin de obtener una vision preliminar de los datos.
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 datos <- read.csv("tarkington.csv")
@@ -1111,7 +1098,7 @@ tabla_medidas_control <- data.frame(
 ```
 
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+```{r t5,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 # Imprimir la tabla usando kable con opciones de kableExtra
 kable(tabla_medidas_control,
       col.names = c("Medida", "Valor"),
@@ -1141,7 +1128,7 @@ tabla_medidas_oz <- data.frame(
 ```
 
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
+```{r t6,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 # Imprimir la tabla usando kable con opciones de kableExtra
 kable(tabla_medidas_oz,
       col.names = c("Medida", "Valor"),
@@ -1158,22 +1145,54 @@ kable(tabla_medidas_oz,
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 # Graficos descriptivos
-plot_con_hist <- ggplot(datos_control, aes(x = gain))+
+plot_con_hist <- ggplot(datos_control, aes(x = gain, color = "#87CEEB"))+
   geom_histogram(bins = 22)+
-  labs(y = "Cantidad")
+  labs(y = "Frecuencia")+
+  theme_bw() +
+  theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(), #agregue
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank(),
+      legend.position = "none"
+    )
 
-plot_con_box <-ggplot(datos_control, aes(y = gain))+
+plot_con_box <-ggplot(datos_control, aes(y = gain, color = "#87CEEB"))+
   geom_boxplot()+
-  labs(y = "cambio de peso")
+  labs(y = "Gain")+
+  theme_bw() +
+  theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(), #agregue
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank(),
+      legend.position = "none"
+    )
 
 # Graficos descriptivos
-plot_oz_hist <-ggplot(datos_oz, aes(x = gain))+
+plot_oz_hist <-ggplot(datos_oz, aes(x = gain, color = "#FFA07A"))+
   geom_histogram(bins = 22)+
-  labs(y = "cantidad")
+  labs(y = "Frecuencia")+
+  theme_bw() +
+  theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(), #agregue
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank(),
+      legend.position = "none"
+    )
 
-plot_oz_box <-ggplot(datos_oz, aes(y = gain))+
+plot_oz_box <-ggplot(datos_oz, aes(y = gain, color = "#FFA07A"))+
   geom_boxplot()+
-  labs(y = "cambio de peso")
+  labs(y = "Gain")+
+  theme_bw() +
+  theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(), #agregue
+      axis.ticks.y = element_blank(),
+      axis.text.y = element_blank(),
+      legend.position = "none"
+    )
 ```
 
 
@@ -1182,45 +1201,27 @@ grid.arrange(plot_con_hist, plot_con_box, ncol = 2)
 
 ```
 
-```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 7, fig.height = 3.5, fig.cap="Histograma y Boxplot para Control"}
+```{r,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 7, fig.height = 3.5, fig.cap="Histograma y Boxplot para Ozono"}
 grid.arrange(plot_oz_hist, plot_oz_box, ncol = 2)
 ```
 
 
-## Modificada por chatgpt
-En base a las medidas descriptivas obtenidas, se observa una diferencia considerable entre el cambio de peso en las ratas del grupo control y en las ratas expuestas a ozono.El cambio de peso medio en las ratas expuestas a ozono representa aproximadamente la mitad del registrado en las ratas del grupo control, lo que indica una reducción en la ganancia de peso atribuible a la exposición al ozono.
+En base a las medidas descriptivas obtenidas en las Tablas 5 y 6, se observa que el rango de ambas muestras parecen ser similares cubriendo valores desde -16.9 hasta un valor de 54.6.
 
-Asimismo, el análisis mediante diagramas de caja (boxplots) revela que la distribución del cambio de peso en las ratas del grupo ozono presenta una asimetría hacia la izquierda, lo cual sugiere la presencia de valores más bajos en comparación con la mediana. 
-En contraste, el cambio de peso en las ratas del grupo control muestra una distribución más concentrada, lo que indica una mayor homogeneidad en los datos de ese grupo.
+El cambio de peso medio en las ratas expuestas a ozono representa aproximadamente la mitad del registrado en las ratas del grupo control, lo que indica una reducción en la ganancia de peso que podría ser atribuida  a la exposición al ozono, cabe destacar que la media es sensible a valores extremos por lo que no podemos sacar conclusiones de esta. Asimismo, el análisis mediante diagramas de caja (boxplots) revela que la distribución del cambio de peso en las ratas del grupo ozono presenta una asimetría hacia la izquierda, lo cual sugiere la presencia de valores más bajos en comparación con la mediana. En contraste, el cambio de peso en las ratas del grupo control muestra una distribución más concentrada, lo que indica una mayor homogeneidad en los datos de ese grupo.
 
 \newpage
 
 
-# item 7
+# Diferencias entre la distribución normal y la t de Student con 3 grados de libertad:
 
-## Diferencias entre la distribución normal y la t de Student con 3 grados de libertad:
-Dadas una misma media y varianza, tanto la distribución normal como la t de Student con 3 grados de libertad son simétricas respecto a su media. Sin embargo, presentan diferencias importantes:
-
-1) Colas y valores extremos
-
-* La distribución normal decreció rápidamente a medida que se alejaba del centro, lo que implicó que los valores extremos tuvieran una probabilidad muy baja.
-
-* En cambio, la t de Student con 3 grados de libertad presentó colas más pesadas, es decir, asignó una mayor probabilidad a valores extremos. Esto significó que fue más probable observar datos alejados del centro bajo esta distribución.
-
-2) Dispersión de los datos
-
-* Los valores generados por una normal estuvieron más concentrados alrededor de la media, lo que se reflejó en una menor dispersión.
-
-* En cambio, la t de Student mostró mayor variabilidad, especialmente en los extremos. Aunque la varianza fue la misma numéricamente, la mayor dispersión efectiva afectó a las estadísticas inferenciales como los intervalos de confianza, haciéndolos más amplios.
-
-3) Uso en contextos con poca información
-
-* Cuando se trabajó con muestras pequeñas o con incertidumbre sobre la varianza, la t de Student fue preferible.
-
-* Su forma con colas pesadas permitió capturar mejor la variabilidad e incertidumbre en situaciones donde los datos fueron escasos o ruidosos, protegiendo contra la subestimación del error.
+Si bien tanto la distribución normal como la t de Student con 3 grados de libertad, al compartir media y varianza, exhiben simetría alrededor de su valor central. La distribución normal mostró un decrecimiento mayor a medida que se aleja de la media, lo que implica una baja probabilidad de observar valores extremos. En contraste, la distribución t de Student presentó colas más pesadas, asignando una probabilidad significativamente mayor a la ocurrencia de valores atípicos en comparación con la normal.
 
 
-```{r, warning=FALSE, message=FALSE}
+En conclusión, en contextos caracterizados por muestras de tamaño reducido o una elevada incertidumbre sobre la varianza poblacional, la distribución t de Student se eligió como una opción preferible a la normal. Sus colas pesadas proporcionaron una mejor capacidad para modelar la variabilidad de cuando las muestras son más pequeñas, otorgando una mayor probabilidad a los valores atípicos y en consecuencia la distribución no es tan sensible a ellos.
+
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
 # setear datos
 prueba <- data.frame(
   valores = seq(-5, 5, length.out = 1000))
@@ -1236,7 +1237,7 @@ prueba$den_t <- scaled_t_density(prueba$valores, 3)
 ```
 
 
-```{r, warning=FALSE, message=FALSE}
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
 # Graficar la curva de densidad
 ggplot(prueba, aes(x = valores, y = den_norm)) +
   geom_line(aes(y = den_norm, color = "Normal")) +
@@ -1251,13 +1252,14 @@ ggplot(prueba, aes(x = valores, y = den_norm)) +
 \newpage
 
 
-# ITEM 8
+# Comparación del modelo normal con el T de student
+
 funcion del posterior generalizado en base logaritmica para eficiencia "computacional"
 aca iria una introduccion y la formula del posterior para cada modelo
 
 La distribución a posteriori conjunta de los parámetros $\theta = \{\mu_o,\mu_c, \sigma_o, \sigma_c\}$ dado los datos $y$ se obtiene mediante la regla de Bayes:
   $$p(\mu_o,\mu_c, \sigma_o, \sigma_c\ | \boldsymbol{y}) = \frac{p(\boldsymbol{y} | \mu_o,\mu_c, \sigma_o, \sigma_c). p(\mu_o,\mu_c, \sigma_o, \sigma_c)}{p(\boldsymbol{y})} \propto p( \boldsymbol{y}  \text{ | } \mu_o,\mu_c, \sigma_o, \sigma_c).p(\mu_o,\mu_c, \sigma_o, \sigma_c)$$
-    donde $p_y(\boldsymbol{y} | \mu_o,\mu_c, \sigma_o, \sigma_c)$ es la verosimilitud de los datos dado los parámetros, $p(\mu_o,\mu_c, \sigma_o, \sigma_c) = p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o}(\sigma_o) p_{\sigma_c}(\sigma_c)$ es la distribución a priori conjunta de los parámetros (asumiendo independencia entre $\mu_c , \mu_o$ y $\sigma_c , \sigma_o$).
+    donde $p_y(\boldsymbol{y} | \mu_o,\mu_c, \sigma_o, \sigma_c)$ es la verosimilitud de los datos dado los parámetros, $\\ p(\mu_o,\mu_c, \sigma_o, \sigma_c) = p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o}(\sigma_o) p_{\sigma_c}(\sigma_c)$ es la distribución a priori conjunta de los parámetros (asumiendo independencia entre $\mu_c , \mu_o$ y $\sigma_c , \sigma_o$).
     
 La distribución a priori conjunta es el producto de las distribuciones a priori individuales:
 $$p(\mu_o,\mu_c, \sigma_o, \sigma_c) = p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o}(\sigma_o) p_{\sigma_c}(\sigma_c)$$
@@ -1273,10 +1275,13 @@ La relación entre $\sigma_o, \sigma_c$ y $\sigma_o^*, \sigma_c^*$ es $\sigma_0 
 La función de densidad del posterior en el espacio transformado resulta:
       
 $$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \boldsymbol{y}) \propto p( \boldsymbol{y}  \text{ | } \mu_o,\mu_c, \sigma_o, \sigma_c).p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o^*}(\sigma_o^*) p_{\sigma_c^*}(\sigma_c^*)$$
+
 $$\text{Teniendo en cuando la transformacion de }\sigma_o^*, \sigma_c^* \text{ tenemos:}$$
+
 $$p_\sigma^*(exp(\sigma_o^*),exp(\sigma_c^*))*\exp(\sigma_o^*)*exp(\sigma_c^*) $$
+
 $$\text{De esta forma la función de densidad del posterior trasnformado resulta:}$$
-$$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \boldsymbol{y}) \propto\left[ \sum_{i = 1}^{N} P_y(y_i \mid \mu_o, \mu_c,\exp(\sigma_o^*)*exp(\sigma_c^*))\right] + \log{P_{\mu_o}(\mu_o)} + P_{\sigma_o}^*(exp(\sigma_o^*)) + \sigma_o^* + \log{P_{\mu_c}(\mu_c)} + P_{\sigma_c}^*(exp(\sigma_c^*)) + \sigma_c^*$$
+$$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \boldsymbol{y}) \propto\left[ \sum_{i = 1}^{N} p_y(y_i \mid \mu_o, \mu_c,\exp(\sigma_o^*)*exp(\sigma_c^*))\right] + \log{p_{\mu_o}(\mu_o)} + p_{\sigma_o}^*(exp(\sigma_o^*)) + \sigma_o^* + \log{p_{\mu_c}(\mu_c)} + p_{\sigma_c}^*(exp(\sigma_c^*)) + \sigma_c^*$$
       
       
 
