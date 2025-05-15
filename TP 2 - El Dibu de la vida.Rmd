@@ -567,7 +567,7 @@ df_muestras_md <- crear_df_muestras(muestras_md)
 ```
 
 
-```{r f6,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con σ = 1.3"}
+```{r f6,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 # Grafica las 4 trazas
 traceplot2 <- graficar_trazas_md(df_muestras_md, ylab = "y", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 
@@ -767,7 +767,7 @@ graficar_distribucion(muestras_x, grid_x, grid_px, ylab = TeX("$f_X(x)$"), color
 ```
 
 
-```{r f10,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de Y"}
+```{r f10,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplot de la muestras de X"}
 graficar_traza(muestras_x, color = "#3b78b0")                           
 ```
 
@@ -906,7 +906,7 @@ log_posterior <- function(params, y_vector) {
 }
 ```
 
-Inicialmente, se corrieron dos cadenas de Markov, una para el parámetro $\mu$ y otra para el parámetro $\sigma$, y se evaluaron sus medidas de diagnóstico como el tamaño efectivo de muestra y el estadístico $\hat{R}$, que indica la convergencia de las cadenas de markov. Sin embargo, los resultados preliminares sugirieron la necesidad de explorar diferentes combinaciones para el vector de valores iniciales y la matriz de variancia y covariancia $\sum$ de la distribución propuesta, buscando optimizar la calidad de las muestras obtenidas. 
+Inicialmente, se corrieron dos cadenas de Markov, una para el parámetro $\mu$ y otra para el parámetro $\sigma$, y se evaluaron sus medidas de diagnóstico como el tamaño efectivo de muestra y el estadístico $\hat{R}$, que indica la convergencia de las cadenas de markov. Sin embargo, los resultados preliminares sugirieron la necesidad de explorar diferentes combinaciones para el vector de valores iniciales y la matriz de variancia y covariancia de la distribución propuesta, buscando optimizar la calidad de las muestras obtenidas. 
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 # Utilizamos la muestra provista
@@ -946,7 +946,7 @@ graficar_distribucion(
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
 
-```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 0.12"}
 set.seed(0398)
 # Creamos una lista para guardar 4 cadenas del vector de parametros
 muestras_md_log <- list()
@@ -978,7 +978,7 @@ df_muestras_sigma <- df_muestras_md_log |> filter(paso > 10000)
 ```
 
 
-```{r f13,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r f13,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 0.12"}
 
 # Grafica las 4 trazas
 graficar_trazas_md(df_muestras_mu, ylab = "mu", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
@@ -1027,16 +1027,16 @@ graficar_distribucion(
   x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 1,  #igual que arriba
   color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$σ$"),
+  xlab = "σ",
   ylab = NULL)
 ```
 
 
-```{r f15,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
+```{r f15,echo=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Traceplots con sigma = 0.13"}
 # Grafica las 4 trazas
 df_muestras_sigma_trp <- df_muestras_sigma
 df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
-graficar_trazas_md(df_muestras_sigma_trp, ylab = TeX("$σ$"), colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+graficar_trazas_md(df_muestras_sigma_trp, ylab ="σ", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
 ```{r t4,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
@@ -1250,13 +1250,12 @@ prueba$den_t <- scaled_t_density(prueba$valores, 3)
 ```
 
 
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+```{r f18, echo = FALSE, warning=FALSE, message=FALSE, fig.cap="Comparación de densidades: Normal vs t-Student (df=3)", fig.align = "center", fig.width = 4, fig.height = 2.8}
 # Graficar la curva de densidad
 ggplot(prueba, aes(x = valores, y = den_norm)) +
   geom_line(aes(y = den_norm, color = "Normal")) +
   geom_line(aes(y = den_t, color = "T-Student (df = 3)")) +
   labs(
-    title = "Comparación de densidades: Normal vs t-Student (df=3)",
     x = "valores", y = "Densidad", color = "Distribución") +
   theme_bw() +
   theme(
@@ -1296,24 +1295,24 @@ La relación entre $\sigma_o, \sigma_c$ y $\sigma_o^*, \sigma_c^*$ es $\sigma_0 
 
 La función de densidad del posterior en el espacio transformado resulta:
       
-$$p(\mu_o,\mu_c, \sigma_o^, \sigma_c^\ | \textbf{y}) \propto p( \textbf{y}  \text{ | } \mu_o,\mu_c, \sigma_o, \sigma_c).p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o^}(\sigma_o^) p_{\sigma_c^}(\sigma_c^)$$
+$$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \text{y}) \propto p( \text{y}  \text{ | } \mu_o,\mu_c, \sigma_o, \sigma_c).p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o^*}(\sigma_o^*) p_{\sigma_c^*}(\sigma_c^*)$$
 
-$$\text{Teniendo en cuando la transformacion de }\sigma_o^, \sigma_c^ \text{ tenemos:}$$
+$$\text{Teniendo en cuando la transformacion de }\sigma_o^*, \sigma_c^* \text{ tenemos:}$$
 
-$$p_\sigma^(exp(\sigma_o^),exp(\sigma_c^))\exp(\sigma_o^)*exp(\sigma_c^) $$
+$$p_\sigma^*(exp(\sigma_o^*),exp(\sigma_c^*))\exp(\sigma_o^*)*exp(\sigma_c^*) $$
 
 $$\text{De esta forma la función de densidad del posterior transformado resulta:}$$
 
-$$p(\mu_o,\mu_c, \sigma_o^, \sigma_c^\ | \textbf{y}) \propto\left[ \prod_{i = 1}^{N} p_y(y_i \mid \mu_o,\mu_c,\exp(\sigma_o^, \sigma_c^))\right].p_{\mu_o}(\mu_o) . p_{\mu_c}(\mu_c). p_{\sigma_o}^(exp(\sigma_o^)) . p_{\sigma_c}^(exp(\sigma_c^)) . \sigma_c^* . \sigma_o^*$$
+$$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \textbf{y}) \propto\left[ \prod_{i = 1}^{N} p_y(y_i \mid \mu_o,\mu_c,\exp(\sigma_o^*, \sigma_c^*))\right].p_{\mu_o}(\mu_o) . p_{\mu_c}(\mu_c). p_{\sigma_o}^*(exp(\sigma_o^*)) . p_{\sigma_c}^*(exp(\sigma_c^*)) . \sigma_c^* . \sigma_o^*$$
 
 $$\text{Aplicando logaritmo resulta:}$$
 
 
-$$p(\mu_o,\mu_c, \sigma_o^, \sigma_c^\ | \textbf{y}) \propto\left[ \sum_{i = 1}^{N} p_y(y_i \mid \mu_o, \mu_c,\exp(\sigma_o^)*exp(\sigma_c^))\right] + \log{p_{\mu_o}(\mu_o)} + p_{\sigma_o}^(exp(\sigma_o^)) + \sigma_o^* + \log{p_{\mu_c}(\mu_c)} + p_{\sigma_c}^(exp(\sigma_c^)) + \sigma_c^*$$
+$$log \ p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \textbf{y}) \propto\left[ \sum_{i = 1}^{N} log\ p_y(y_i \mid \mu_o, \mu_c,\exp(\sigma_o^*)*exp(\sigma_c^*))\right] + log\ {p_{\mu_o}(\mu_o)} + log \ p_{\sigma_o}^*(exp(\sigma_o^*)) + \sigma_o^* + \log{p_{\mu_c}(\mu_c)} + log\ p_{\sigma_c}^*(exp(\sigma_c^*)) + \sigma_c^*$$
       
       
 
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Función de densidad posterior en escala logarítmica (Ozono)
 log_posterior_oz <- function(params, y_vector, normal = TRUE) {
   # 'params' tiene longitud 4
@@ -1407,22 +1406,19 @@ muestras_theta_estrella_oz <- metropolis_hastings_log(
 ```
 
 
-```{r ,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
+```{r f19,echo=FALSE, message=FALSE, fig.align = "center",  fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de mu"}
 #histograma que muestra la dist a posteriori marginal de mu
 graficar_distribucion(
   muestras_theta_estrella_oz[ ,1], #[1000:10000]
   x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.5,
   color = "green", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$σ_O$"),
+  xlab = TeX("$ σ_O$"),
   ylab = NULL)
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
 
 
-
-
-se concluye brevemente cada uno de los graficos y sus traceplot y luego realizamos las medidas de diagnostico sobre cada parametro
 
 ```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
@@ -1488,14 +1484,14 @@ kable(tabla_diagnostico,
 ```
 
 
-```{r ,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
+```{r f20,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
 #histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
 graficar_distribucion(
   exp(muestras_theta_estrella_oz[ ,2]), #[1000:10000]burn-in (los quema a los primeros 1000 pasos)
   x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.4,  #igual que arriba
   color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$σ_O$"),
+  xlab = TeX("$ σ_O$"),
   ylab = NULL)
 ```
 
@@ -1634,7 +1630,7 @@ graficar_distribucion(
   x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.4,  #igual que arriba
   color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$σ_C$"),
+  xlab = TeX("$ σ_C$"),
   ylab = NULL)
 ```
 
@@ -1778,7 +1774,7 @@ graficar_distribucion(
   x_grid = 7, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.4,  #igual que arriba
   color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$σ_O$"),
+  xlab = TeX("$ σ_O$"),
   ylab = NULL)
 ```
 
@@ -1916,7 +1912,7 @@ graficar_distribucion(
   x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.4,  #igual que arriba
   color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$σ_C$"),
+  xlab = TeX("$ σ_C$"),
   ylab = NULL)
 ```
 
