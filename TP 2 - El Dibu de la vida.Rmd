@@ -642,7 +642,7 @@ graficar_traza(muestras_x, color = "#3b78b0")
 ```
 
 
-Como se puede observar en la Figura @ref(fig:f7), la muestras obtenidas del $posterior$ con una distribución propuesta sugieren una buena aproximacion de la densidad teorica. Adicionalmente, en la @ref(fig:8),  se muestra un patrón de ruido blanco, lo que parece señalar una pérdida bastante rápida de la dependencia de cada muestra con la anterior. En resumen, las muestras tienen menos autocorrelación.
+Como se puede observar en la Figura @ref(fig:f7), la muestras obtenidas del $posterior$ con una distribución propuesta sugieren una buena aproximacion de la densidad teorica. Adicionalmente, en la Figura @ref(fig:f8),  se muestra un patrón de ruido blanco, lo que parece señalar una pérdida bastante rápida de la dependencia de cada muestra con la anterior. En resumen, las muestras tienen menos autocorrelación.
 
 
 ## Escala logarítmica 
@@ -1027,7 +1027,7 @@ graficar_distribucion(
   x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 1,  #igual que arriba
   color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = "σ",
+  xlab = TeX("$\\sigma$"),
   ylab = NULL)
 ```
 
@@ -1036,7 +1036,7 @@ graficar_distribucion(
 # Grafica las 4 trazas
 df_muestras_sigma_trp <- df_muestras_sigma
 df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
-graficar_trazas_md(df_muestras_sigma_trp, ylab ="σ", colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
+graficar_trazas_md(df_muestras_sigma_trp, ylab =TeX("$\\sigma$"), colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
 ```{r t4,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
@@ -1308,7 +1308,7 @@ $$p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \textbf{y}) \propto\left[ \prod_{i = 
 $$\text{Aplicando logaritmo resulta:}$$
 
 
-$$log \ p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \textbf{y}) \propto\left[ \sum_{i = 1}^{N} log\ p_y(y_i \mid \mu_o, \mu_c,\exp(\sigma_o^*)*exp(\sigma_c^*))\right] + log\ {p_{\mu_o}(\mu_o)} + log \ p_{\sigma_o}^*(exp(\sigma_o^*)) + \sigma_o^* + \log{p_{\mu_c}(\mu_c)} + log\ p_{\sigma_c}^*(exp(\sigma_c^*)) + \sigma_c^*$$
+$$log \ p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \textbf{y}) \propto\left[ \sum_{i = 1}^{N} log\ p_y(y_i \mid \mu_o, \mu_c,\exp(\sigma_o^*)*exp(\sigma_c^*))\right] \\ + log\ {p_{\mu_o}(\mu_o)} + log \ p_{\sigma_o}^*(exp(\sigma_o^*)) + \sigma_o^* + \log{p_{\mu_c}(\mu_c)} + log\ p_{\sigma_c}^*(exp(\sigma_c^*)) + \sigma_c^*$$
       
       
 
@@ -1413,7 +1413,7 @@ graficar_distribucion(
   x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.5,
   color = "green", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$ σ_O$"),
+  xlab = TeX("$\\mu_O$"),
   ylab = NULL)
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
@@ -1491,7 +1491,7 @@ graficar_distribucion(
   x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.4,  #igual que arriba
   color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$ σ_O$"),
+  xlab = TeX("$\\sigma_O$"),
   ylab = NULL)
 ```
 
@@ -1552,7 +1552,7 @@ graficar_distribucion(
   x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.4,
   color = "green", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$μ_C$"),
+  xlab = TeX("$\\mu_C$"),
   ylab = NULL)
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
@@ -1630,7 +1630,7 @@ graficar_distribucion(
   x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.4,  #igual que arriba
   color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$ σ_C$"),
+  xlab = TeX("$\\sigma_C$"),
   ylab = NULL)
 ```
 
@@ -1697,7 +1697,7 @@ graficar_distribucion(
   x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.5,
   color = "green", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$μ_O$"),
+  xlab = TeX("$\\mu_O$"),
   ylab = NULL)
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
@@ -1774,7 +1774,7 @@ graficar_distribucion(
   x_grid = 7, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.4,  #igual que arriba
   color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$ σ_O$"),
+  xlab = TeX("$\\sigma_O$"),
   ylab = NULL)
 ```
 
@@ -1836,7 +1836,7 @@ graficar_distribucion(
   x_grid = 1, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.4,
   color = "green", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$μ_C$"),
+  xlab = TeX("$\\mu_C$"),
   ylab = NULL)
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
@@ -1912,7 +1912,7 @@ graficar_distribucion(
   x_grid = 15, #No podemos graficar la linea azul porq de antemano no conocemos la distribucion
   p_grid = 0.4,  #igual que arriba
   color = "orange", #cambiar gama de colores para los parametros mu y sigma
-  xlab = TeX("$ σ_C$"),
+  xlab = TeX("$\\sigma_C$"),
   ylab = NULL)
 ```
 
