@@ -825,9 +825,6 @@ kable(tabla_diagnostico,
 
 La Figura @ref(fig:f9) muestra el histograma de las muestras obtenidas para la variable X, indicando una buena cobertura de su rango de variabilidad. El traceplot correspondiente a la Figura @ref(fig:f11) sugiere convergencia de las cadenas de markov hacia una misma distribución. Es notable que las medidas de diagnóstico ($\hat{R}$ y $N_{eff}$) para estas muestras, mostradas en la Tabla 3, son idénticas a las calculadas previamente para la variable Y (Tabla 2 de la @ref(fig:f6)). Esta coincidencia sucede ya que, el algoritmo de Metropolis-Hastings se implementó utilizando cálculos en escala logarítmica para la estabilidad numérica para su optimización, las muestras generadas de la variable X se obtienen a partir del mismo valor de inicio, y por lo tanto sus propiedades de convergencia y eficiencia evaluadas por $\hat{R}$ y $N_{eff}$, permanecen inalteradas.
 
-
-
-
 \newpage
 
 # Inferencia Bayesiana en Múltiples Dimensiones {#Objetivo-2}
@@ -1030,6 +1027,7 @@ df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
 graficar_trazas_md(df_muestras_sigma_trp, ylab =TeX("$\\sigma$"), colors = c("#87CEEB", "#FFA07A", "#FFFFE0", "#B0E0E6"))
 ```
 
+
 ```{r t4,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 set.seed(0398)
 # se juntan las cadenas en una matriz para obtener las medidas de diagnostico
@@ -1060,13 +1058,9 @@ kable(tabla_diagnostico,
   column_spec(2, width = "3cm")
 ```
 
-
-
 En cuanto a $\sigma$, las muestras definitivas del $posterior$ mostrado en la Figura @ref(fig:f14), obtenidas con una propuesta de desvío de 0.13 y un valor inicial de 0.8, exhiben un $\hat{R}$ cercano a 1, lo que indica convergencia de las cadenas de markov  hacia una misma distribución, lo está corroborado visualmente en la Figura @ref(fig:f15). El tamaño efectivo de muestra para $\sigma$ fue de 6086.86, el más alto entre las propuestas comparadas.
 
-
 \newpage
-
 
 # Análisis exploratorio
 
@@ -1205,6 +1199,7 @@ grid.arrange(plot_con_hist, plot_con_box, ncol = 2)
 
 ```
 
+
 ```{r f17,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 7, fig.height = 3.5, fig.cap="Histograma y Boxplot para Ozono"}
 grid.arrange(plot_oz_hist, plot_oz_box, ncol = 2)
 ```
@@ -1216,14 +1211,11 @@ El cambio de peso medio en las ratas expuestas a ozono representa aproximadament
 
 \newpage
 
-
 # Diferencias entre la distribución normal y la t de Student con 3 grados de libertad:
 
 Si bien tanto la distribución normal como la t de Student con 3 grados de libertad, al compartir media y varianza, exhiben simetría alrededor de su valor central. La distribución normal mostró un decrecimiento mayor a medida que se aleja de la media, lo que implica una baja probabilidad de observar valores extremos. En contraste, la distribución t de Student presentó colas más pesadas, asignando una probabilidad significativamente mayor a la ocurrencia de valores atípicos en comparación con la normal.
 
-
 En conclusión, en contextos caracterizados por muestras de tamaño reducido o una elevada incertidumbre sobre la varianza poblacional, la distribución t de Student se eligió como una opción preferible a la normal. Sus colas pesadas proporcionaron una mejor capacidad para modelar la variabilidad de cuando las muestras son más pequeñas, otorgando una mayor probabilidad a los valores atípicos y en consecuencia la distribución no es tan sensible a ellos.
-
 
 ```{r, echo = FALSE, warning=FALSE, message=FALSE}
 # setear datos
@@ -1260,9 +1252,7 @@ ggplot(prueba, aes(x = valores, y = den_norm)) +
     
 ```
 
-
 \newpage
-
 
 # Comparación del modelo normal con el T de student
 
@@ -1271,7 +1261,7 @@ aca iria una introduccion y la formula del posterior para cada modelo
 
 La distribución a posteriori conjunta de los parámetros $\theta = \{\mu_o,\mu_c, \sigma_o, \sigma_c\}$ dado los datos $y$ se obtiene mediante la regla de Bayes:
   $$p(\mu_o,\mu_c, \sigma_o, \sigma_c\ | \boldsymbol{y}) = \frac{p(\boldsymbol{y} | \mu_o,\mu_c, \sigma_o, \sigma_c). p(\mu_o,\mu_c, \sigma_o, \sigma_c)}{p(\boldsymbol{y})} \propto p( \boldsymbol{y}  \text{ | } \mu_o,\mu_c, \sigma_o, \sigma_c).p(\mu_o,\mu_c, \sigma_o, \sigma_c)$$
-    donde $p_y(\boldsymbol{y} | \mu_o,\mu_c, \sigma_o, \sigma_c)$ es la verosimilitud de los datos dado los parámetros, $\\ p(\mu_o,\mu_c, \sigma_o, \sigma_c) = p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o}(\sigma_o) p_{\sigma_c}(\sigma_c)$ es la distribución a priori conjunta de los parámetros (asumiendo independencia entre $\mu_c , \mu_o$ y $\sigma_c , \sigma_o$).
+  donde $p_y(\boldsymbol{y} | \mu_o,\mu_c, \sigma_o, \sigma_c)$ es la verosimilitud de los datos dado los parámetros, $\\ p(\mu_o,\mu_c, \sigma_o, \sigma_c) = p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o}(\sigma_o) p_{\sigma_c}(\sigma_c)$ es la distribución a priori conjunta de los parámetros (asumiendo independencia entre $\mu_c , \mu_o$ y $\sigma_c , \sigma_o$).
     
 La distribución a priori conjunta es el producto de las distribuciones a priori individuales:
 $$p(\mu_o,\mu_c, \sigma_o, \sigma_c) = p_{\mu_o}(\mu_o).p_{\mu_c}(\mu_c).p_{\sigma_o}(\sigma_o) p_{\sigma_c}(\sigma_c)$$
@@ -1300,8 +1290,7 @@ $$\text{Aplicando logaritmo resulta:}$$
 
 
 $$log \ p(\mu_o,\mu_c, \sigma_o^*, \sigma_c^*\ | \textbf{y}) \propto\left[ \sum_{i = 1}^{N} log\ p_y(y_i \mid \mu_o, \mu_c,\exp(\sigma_o^*)*exp(\sigma_c^*))\right] \\ + log\ {p_{\mu_o}(\mu_o)} + log \ p_{\sigma_o}^*(exp(\sigma_o^*)) + \sigma_o^* + \log{p_{\mu_c}(\mu_c)} + log\ p_{\sigma_c}^*(exp(\sigma_c^*)) + \sigma_c^*$$
-      
-      
+
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Función de densidad posterior en escala logarítmica (Ozono)
@@ -1450,7 +1439,6 @@ df_muestras_sigma <- df_muestras_md_log |> filter(paso > 5000)
 ```
 
 
-
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 
 set.seed(0398)
@@ -1481,6 +1469,7 @@ kable(tabla_diagnostico,
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   column_spec(2, width = "3cm")
 ```
+
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 df_muestras_sigma_trp <- df_muestras_sigma
@@ -1516,12 +1505,7 @@ kable(tabla_diagnostico,
 
 El análisis de las medidas de diagnóstico en las Tablas 8 y 9, correspondientes a los posteriores de $\mu$ y $\sigma$ del grupo expuesto al ozono, señala que las muestras del $posterior$ de $\mu$ para este grupo presentan la mejor calidad en comparación con otras pruebas. Esto se sustenta en un valor de $\hat{R}$ próximo a la unidad y el tamaño efectivo de muestra más elevado observado.Además en las figuras @ref(fig:f19) y @ref(fig:f20), se exhiben dichas muestras de los $posteriors$ obtenidas, dónde se nota una forma campanular de descenso rápido, lo que coincide con lo comentado en el análisis de la normal y t de student con media y varianzas iguales.
 
-
-
-
 ## Posteriors para $\mu$ y $\sigma$ en el grupo de control bajo un modelo normal
-
-
 
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 set.seed(0398)
@@ -1553,6 +1537,7 @@ graficar_distribucion(
 # es un histograma que representa la distribucion aposteriori marginal de mu
 ```
 
+
 ```{r f22,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
 #histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
 graficar_distribucion(
@@ -1563,6 +1548,7 @@ graficar_distribucion(
   xlab = TeX("$\\sigma_C$"),
   ylab = NULL)
 ```
+
 
 ```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
@@ -1627,8 +1613,6 @@ kable(tabla_diagnostico,
 ```
 
 
-
-
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 df_muestras_sigma_trp <- df_muestras_sigma
 df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])
@@ -1667,7 +1651,6 @@ A partir de las figuras @ref(fig:f19), @ref(fig:f20), @ref(fig:f21) y @ref(fig:f
 
 Se observa que la distribución a $posteriori$ de $\sigma$ para el grupo de ozono parece estar ligeramente desplazada hacia valores más bajos en comparación con el grupo control, lo que sugiere que el aumento de peso de las ratas expuestas al ozono es menor que las ratas del control. Además el ancho de los histogramas de mu en ambos grupos sugiere una mayor incertidumbre respecto al valor medio del cambio de peso de las ratas, sin importar el grupo al que pertenecen.
 Al observar la ubicación del centro de las distribuciones de los posteriors de sigma de ambos grupos parecen ser similares en referencia al rango de variación de los mismos y su dispersión, lo que sugiere que la incertidumbre respecto a la variabilidad del aumento de peso en las ratas es igual en ambos grupos.
-
 
 
 ## Posteriors para $\mu$ y $\sigma$ en el grupo de ozono bajo un modelo t-student
@@ -1740,6 +1723,7 @@ df_muestras_sigma <- df_muestras_md_log |> filter(paso > 5000)
 
 ```
 
+
 ```{r f24,echo=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8, warning=FALSE, fig.cap="Histograma de la muestras de sigma"}
 #histograma que muestra la dist a posteriori marginal de sigma (transformamos sigma_estrella)
 graficar_distribucion(
@@ -1750,6 +1734,7 @@ graficar_distribucion(
   xlab = TeX("$\\sigma_O$"),
   ylab = NULL)
 ```
+
 
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 
@@ -1783,9 +1768,6 @@ kable(tabla_diagnostico,
 ```
 
 
-
-
-
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 df_muestras_sigma_trp <- df_muestras_sigma
 df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
@@ -1817,7 +1799,6 @@ kable(tabla_diagnostico,
 ```
 
 Las tablas 12 y 13 muestran las medidas de diagnóstico correspondientes a las muestras de los $posterior$ de $\mu$ y $\sigma$ del grupo de ratas expuestas al ozono bajo un modelo T de Student. Donde se muestra que el tamaño de muestra efectivo más adecuado de las muestras comparadas de este grupo fueron de 2807.6 para $\mu$ y 1956.63 de $\sigma$. Ambas tablas muestran que las cadenas de markov convergieron a la misma distribución.
-
 
 
 ## Posteriors para $\mu$ y $\sigma$ en el grupo de control bajo un modelo t-student
@@ -1864,6 +1845,7 @@ graficar_distribucion(
   xlab = TeX("$\\sigma_C$"),
   ylab = NULL)
 ```
+
 
 ```{r ,echo=FALSE, fig.align = "center", fig.width = 5, fig.height = 3.5, warning=FALSE, fig.cap="Traceplots con sigma = 1.3"}
 set.seed(0398)
@@ -1928,8 +1910,6 @@ kable(tabla_diagnostico,
 ```
 
 
-
-
 ```{r ,echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", fig.width = 4, fig.height = 2.8}
 df_muestras_sigma_trp <- df_muestras_sigma
 df_muestras_sigma_trp[ ,3] <- exp(df_muestras_sigma[ ,3])# se juntan las cadenas en una matriz para obtener las medidas de diagnostico
@@ -1963,19 +1943,13 @@ kable(tabla_diagnostico,
 
 Como se muestra en las tablas 14 y 15, las medidas de diagnóstico del $posterior$ de los parámetros $\mu$ y $\sigma$ del grupo de control sujeto a un modelo t de student presentan un tamaño efectivo de muestra de 2475.59 para $\mu$ y 2301.9 para $\sigma$, destacándose la convergencia en ambos casos de las cadenas de markov, representado por el valor de $\hat{R}$. 
 
-
 Además se consideró que la utilización de las muestras de los cuatro $posterior$ mencionados fue la adecuada ya que al probar diferentes valores iniciales y de desvío en la mayoría de los casos mejoraba ligeramente  el tamaño efectivo de muestra pero se perdía la convergencia de las cadenas de markov. Por lo que se prefirió contar con un tamaño de muestra más pequeño pero conservar dicha convergencia en todos los posterior.
-
 
 A partir de las Figuras @ref(fig:f21), @ref(fig:f22), @ref(fig:f23) y @ref(fig:f24), se observa que las distribuciones a posteriori de $\mu$ y $\sigma$ para los grupos de control y de ratas expuestas al ozono también presentan una forma de campana y aproximadamente simétrica, lo cual es consistente con lo esperado bajo un modelo T de Student. Sin embargo, en contraposición con las distribuciones obtenidas bajo el modelo normal, se podría evaluar si estas distribuciones exhiben colas ligeramente más pesadas.
 
-
 Al observar las distribuciones a posteriori de $\mu$, mostradas por las Figuras @ref(fig:f21) y @ref(fig:f23), sugiere que la media del cambio de peso para el grupo de ozono podría estar desplazada hacia valores más bajos en relación con el grupo control, lo que implicaría un menor aumento de peso en las ratas expuestas al ozono. La dispersión observada en los histogramas de μ para ambos grupos señala la incertidumbre en la estimación de la media del cambio de peso.
 
-
 En cuanto a las distribuciones a posteriori de $\sigma$, exhibidas en las Figuras @ref(fig:f22) y @ref(fig:f24), que representan la desviación estándar de ambos grupos de ratas, se nota una ubicación y dispersión relativamente similar entre ellos, lo que sugiere incertidumbre similar en la variabilidad del cambio de peso.
-
-
 
 # Conclusión final
 
