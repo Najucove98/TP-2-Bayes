@@ -125,15 +125,6 @@ convergencia a la distribución objetivo.
 
 \newpage
 
-## Índice
-
-1.[**En el simulador: ensayos con la distribución Gamma**](#Objetivo-1)
-
-2.[**Free practice: múltiples dimensiones**](#Objetivo-2)
-
-3.[**El Gran Prix: ¿qué le decimos a Brian?**](#Objetivo-3)
-
-\newpage
 
 ```{r , echo=FALSE, message=FALSE, warning=FALSE}
 library(purrr)
